@@ -1,0 +1,66 @@
+.search_widget .search_input .form-control {
+    height: 50px;
+    border-top: 1px solid #f0e9ff;
+    border-bottom: 1px solid #f0e9ff;
+    border-left: 1px solid #f0e9ff;
+    border-right: 1px solid #4B3049;
+    font-size: 13px;
+    color: #999999;
+    padding-left: 20px;
+    border-radius: 0;
+}
+
+.search_widget .search_input button {
+    border: 1px solid #4B3049;
+    color: #4B3049;
+    border-left: 0;
+    padding: 4px 15px;
+    border-left: 0;
+}
+
+.breadcrumb_section {
+    background-color: #F4EDF2;
+}
+
+.my_breadcrumb {
+    background-color: #F4EDF2 !important;
+}
+
+.just-padding {
+    padding: 15px;
+    font-size: 1rem;
+}
+
+.list-group.list-group-root {
+    padding: 0;
+    overflow: hidden;
+}
+
+.list-group.list-group-root .list-group {
+    margin-bottom: 0;
+}
+
+.list-group.list-group-root .list-group-item {
+    border-radius: 0;
+    border-width: 0 0 0 0;
+}
+
+.list-group.list-group-root>.list-group-item:first-child {
+    border-top-width: 0;
+}
+
+.list-group.list-group-root>.list-group>.list-group-item {
+    padding-left: 50px;
+}
+
+.list-group.list-group-root>.list-group>.list-group>.list-group-item {
+    padding-left: 105px;
+}
+
+.list-group-item .glyphicon {
+    margin-right: 5px;
+}
+
+.my-list-group-item .form-check {
+    display: inline;
+}

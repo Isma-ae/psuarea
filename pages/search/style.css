@@ -1,0 +1,86 @@
+.breadcrumb_section {
+    background-color: #F4EDF2;
+}
+
+.my_breadcrumb {
+    background-color: #F4EDF2 !important;
+}
+
+.search_widget .search_input .form-control {
+    height: 50px;
+    border-color: #f0e9ff;
+    font-size: 13px;
+    color: #999999;
+    padding-left: 20px;
+    border-radius: 0;
+    border-right: 0;
+}
+
+.search_widget .search_input button {
+    background: #4B3049;
+    color: #fff;
+    border-left: 0;
+    border: 1px solid #f0e9ff;
+    padding: 4px 15px;
+    border-left: 0;
+}
+
+.my-ink {
+    line-height: 1.5;
+    font-size: 18px;
+    font-weight: 500;
+    color: #4B3049 !important;
+}
+
+.my-ink:hover {
+    color: #0e070d !important;
+    border-bottom: 1px solid #0e070d;
+}
+
+.my-blog-pagination {
+    margin-top: 0px;
+}
+
+.my-blog {
+    margin-bottom: 1rem !important;
+    padding: 20px 30px;
+    box-shadow: 5px 5px 5px 5px rgba(221, 221, 221, 0.3);
+}
+
+.my-blog-pagination .page-link {
+    font-size: 14px;
+    position: relative;
+    display: block;
+    padding: 0;
+    text-align: center;
+    margin-left: -1px;
+    line-height: 45px;
+    width: 45px;
+    height: 45px;
+    border-radius: 0 !important;
+    color: #8a8a8a;
+    border: 1px solid #f0e9ff;
+    margin-right: 10px;
+}
+
+.my-blog-pagination .page-item.active .page-link {
+    background-color: #fbf9ff;
+    border-color: #f0e9ff;
+    color: #888888;
+}
+
+.shipping_select {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px solid #f0e9ff;
+    border-radius: 5px;
+    height: 48px;
+    padding-left: 18px;
+    font-size: 13px;
+}
+
+.form-group .shipping_select .list {
+    width: 100% !important;
+    border-radius: 0px !important;
+}
