@@ -1,8 +1,9 @@
 $(function () {
 
     tinymce.init({
-        selector: 'textarea#basic-example',
-        height: 500
+        selector: 'textarea#title',
+        height: 500,
+        promotion: false
     });
 
     load_page();
@@ -41,6 +42,16 @@ $(function () {
                         $('.edit-title').hide();
                         $('.add-title').show();
                     }
+
+                    $('.edit-title').click(function (e) {
+                        e.preventDefault();
+                        $('#header-modal').removeClass('bg-success');
+                        $('#header-modal').addClass('bg-warning');
+                        $('#edit-title').removeClass('btn-success');
+                        $('#edit-title').addClass('btn-warning');
+                        tinyMCE.get('title').setContent(res.data[0].page_title);
+                        $('.modal_title').modal('show');
+                    });
                 }
             }
         });
@@ -89,6 +100,36 @@ $(function () {
                             load_page();
                         });
                     }
+                });
+            }
+        });
+    });
+
+    $('.add-title').click(function (e) {
+        e.preventDefault();
+        $('#header-modal').removeClass('bg-warning');
+        $('#header-modal').addClass('bg-success');
+        $('#edit-title').removeClass('btn-warning');
+        $('#edit-title').addClass('btn-success');
+        tinyMCE.get('title').setContent('');
+        $('.modal_title').modal('show');
+    });
+
+    $('#edit-title').click(function (e) {
+        e.preventDefault();
+        var page_title = tinyMCE.get('title').getContent()
+        $.ajax({
+            type: "post",
+            url: "pages/home-page/action.php",
+            data: {
+                fn: "edit_title",
+                page_title: page_title
+            },
+            dataType: "json",
+            success: function (res) {
+                Swal.fire(res.title, res.message, res.icon).then((result) => {
+                    load_page();
+                    $('.modal_title').modal('hide');
                 });
             }
         });

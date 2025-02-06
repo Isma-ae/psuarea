@@ -11,12 +11,15 @@
         ]);
         exit();
 	}
+
+    
 	include("../../../php/functions.php");
 	$fn = isset( $_POST["fn"] ) ? $_POST["fn"] : "";
 	switch ($fn) {
         case 'load_page'		: echo load_page(); 		break;
         case 'add_banner'		: echo add_banner(); 	    break;
         case 'delete_banner'	: echo delete_banner(); 	break;
+        case 'edit_title'	    : echo edit_title(); 	    break;
 		default: break;
 	}
 
@@ -82,4 +85,24 @@
             ]);
         }
         
+    }
+
+    function edit_title() {
+        global $DATABASE;
+        $update = $DATABASE->QueryUpdate('tb_page',['page_title' => $_POST["page_title"]],'page_id = 1');
+        if ($update) {
+            return json_encode([
+                "data"=>"y",
+                "title"=>"สำเร็จ",
+                "message"=>"ลบแบนเนอร์เรียบร้อย",
+                "icon"=>"success"
+            ]);
+        } else {
+            return json_encode([
+                "data"=>"n",
+                "title"=>"ไม่สำเร็จ",
+                "message"=>"ไม่สามารถลบไฟล์นี้",
+                "icon"=>"error"
+            ]);
+        }
     }

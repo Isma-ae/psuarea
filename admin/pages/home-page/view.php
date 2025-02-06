@@ -55,22 +55,22 @@
     </div>
 </div>
 
-<div id="warning-header-modal" class="modal fade modal-title" tabindex="-1" role="dialog"
+<div id="warning-header-modal" class="modal fade modal_title" tabindex="-1" role="dialog"
     aria-labelledby="warning-header-modalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header modal-colored-header bg-warning">
+            <div class="modal-header modal-colored-header bg-warning" id="header-modal">
                 <h4 class="modal-title" id="warning-header-modalLabel">Modal Heading
                 </h4>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <button type="button" class="close" data-backdrop="false" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <textarea id="basic-example"></textarea>
+                    <textarea id="title"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light" data-backdrop="false" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-warning" id="edit-title">บันทึก</button>
             </div>
         </div>
