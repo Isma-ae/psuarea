@@ -19,8 +19,17 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-6">ชุมชน</div>
+                        <div class="col-md-3 text-right"><b>ชุมชนรวม - <span id="total_data"></span></b></div>
+                        <div class="col-md-3">
+                            <input type="text" name="search" class="form-control" id="search" placeholder="Search Here"
+                                onkeyup="load_data(this.value);" />
+                        </div>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <h4 class="card-title">ชุมชน</h4>
                     <div class="table-resposive">
                         <table class="table table-striped">
                             <thead>
