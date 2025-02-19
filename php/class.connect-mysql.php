@@ -22,6 +22,7 @@
 			$this->dbname = $dbname;
 			$this->charset = $charset;
 		}
+
 		public function Close() {
 			if(!$this->conn->connect_error) return $this->conn->close();
 			return null;
@@ -43,6 +44,16 @@
 				$this->conn->query("SET sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'"); // ยกเลิกการ strict ฟิล์ดข้อมูลว่าง
 			}
 		}
+
+		public function Prepare($sql) {
+			$this->sql = $sql;
+			$this->Connect();
+			if ($this->conn === null) {
+				die("Database connection is null.");
+			}
+			return $this->conn->prepare($sql);
+		}
+	
 		public function Error() {
 			return $this->error;
 		}

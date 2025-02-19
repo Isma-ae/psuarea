@@ -17,7 +17,7 @@
 	$fn = isset( $_POST["fn"] ) ? $_POST["fn"] : "";
 	switch ($fn) {
         case 'load_community'		: echo load_community(); 		break;
-        case 'add_banner'		: echo add_banner(); 	    break;
+        case 'add_community'		: echo add_community(); 	    break;
         case 'delete_banner'	: echo delete_banner(); 	break;
         case 'edit_title'	    : echo edit_title(); 	    break;
 		default: break;
@@ -26,160 +26,112 @@
     function load_community() {
         global $DATABASE;
         $limit = 5;
-        $page = 1;
-        if($_POST["page"] > 1) {
-            $start = (($_POST["page"] - 1) * $limit);
-            $page = $_POST["page"];
-        } else {
-            $start = 0;
-        }
-        if($_POST["query"] != '') {
-            $condition = preg_replace('/[^A-Za-z0-9\- ]/', '', $_POST["query"]);
-            $condition = trim($condition);
-            $condition = str_replace(" ", "%", $condition);
-            $sample_data = array(
-                ':community_title'			=>	'%' . $condition . '%',
-                ':community_description'		=>	'%'	. $condition . '%'
-            );
-
-            $query = "SELECT *
-                FROM tb_community 
-                WHERE community_title LIKE :community_title 
-                OR community_description LIKE :community_description 
-                ORDER BY community_id DESC
-            ";
-            $filter_query = $query . ' LIMIT ' . $start . ', ' . $limit . '';
-            $statement = $DATABASE->QueryObj($query);
-            //$statement->execute($sample_data);
-            $total_data = sizeof($statement);
-            $result = $DATABASE->QueryObj($filter_query);
-            //$statement->execute($sample_data);
-            //$result = $statement->fetchAll();
-            $replace_array_1 = explode('%', $condition);
-            foreach($replace_array_1 as $row_data) {
-                $replace_array_2[] = '<span style="background-color:#'.rand(100000, 999999).'; color:#fff">'.$row_data.'</span>';
+        $condition = "";
+        $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
+        $start = ($page - 1) * $limit;
+        if (isset($_POST["query"])) {
+            $query = "SELECT * FROM tb_community";
+            $params = [];
+            $types = "";
+            $search_query = "";
+            if (!empty($_POST["query"])) {
+                $condition = trim(preg_replace('/[^A-Za-z0-9\- ]/', '', $_POST["query"]));
+                $condition = str_replace(" ", "%", $condition);
+                $search_query = " WHERE community_title LIKE ? OR community_description LIKE ?";
+                $params[] = "%$condition%";
+                $params[] = "%$condition%";
+                $types .= "ss";
             }
-            foreach($result as $row) {
-                $data[] = array(
-                    'community_id'			=>	$row["community_id"],
-                    'community_title'		=>	str_ireplace($replace_array_1, $replace_array_2, $row["community_title"]),
-                    'community_description'	=>	str_ireplace($replace_array_1, $replace_array_2, $row["community_description"])
-                );
-            }
-        } else {
-            $query = "SELECT *
-                FROM tb_community 
-                ORDER BY community_id DESC
-            ";
-            $filter_query = $query . ' LIMIT ' . $start . ', ' . $limit . '';
-            $statement = $DATABASE->QueryObj($query);
-            //$statement->execute();
-            $total_data = sizeof($statement);
-            $result = $DATABASE->QueryObj($filter_query);
-            //$statement->execute();
-            //$result = $statement->fetchAll();
-            foreach($result as $row) {
-                $data[] = array(
-                    'community_id'				=>	$row["community_id"],
-                    'community_title'			=>	$row['community_title'],
-                    'community_description'		=>	$row['community_description']
-                );
-            }
-        }
-        $pagination_html = '
-        <div align="center">
-            <ul class="pagination">
-        ';
-        $total_links = ceil($total_data/$limit);
-        $previous_link = '';
-        $next_link = '';
-        $page_link = '';
-        if($total_links > 4) {
-            if($page < 5) {
-                for($count = 1; $count <= 5; $count++) {
-                    $page_array[] = $count;
+            $stmt = $DATABASE->Prepare($query . $search_query);
+            if ($stmt) {
+                if (!empty($params)) {
+                    $stmt->bind_param($types, ...$params);
                 }
-                $page_array[] = '...';
-                $page_array[] = $total_links;
+                $stmt->execute();
+                $stmt->store_result();
+                $total_data = $stmt->num_rows;
+                $stmt->close();
             } else {
-                $end_limit = $total_links - 5;
-                if($page > $end_limit) {
-                    $page_array[] = 1;
-                    $page_array[] = '...';
-                    for($count = $end_limit; $count <= $total_links; $count++) {
-                        $page_array[] = $count;
-                    }
-                } else {
-                    $page_array[] = 1;
-                    $page_array[] = '...';
-                    for($count = $page - 1; $count <= $page + 1; $count++) {
-                        $page_array[] = $count;
-                    }
-                    $page_array[] = '...';
-                    $page_array[] = $total_links;
-                }
+                die(json_encode(['error' => 'SQL Error: ' . $DATABASE->error]));
             }
-        } else {
-            for($count = 1; $count <= $total_links; $count++) {
-                $page_array[] = $count;
-            }
-        }
-
-        for($count = 0; $count < count($page_array); $count++) {
-            if($page == $page_array[$count]) {
-                $page_link .= '
-                <li class="page-item active">
-                    <a class="page-link" href="#">'.$page_array[$count].' <span class="sr-only">(current)</span></a>
-                </li>
-                ';
-                $previous_id = $page_array[$count] - 1;
-                if($previous_id > 0) {
-                    $previous_link = '<li class="page-item"><a class="page-link" href="javascript:load_data(`'.$_POST["query"].'`, '.$previous_id.')">Previous</a></li>';
-                } else {
-                    $previous_link = '
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">Previous</a>
-                    </li>
-                    ';
+            $query .= $search_query . " ORDER BY community_id DESC LIMIT ?, ?";
+            $stmt = $DATABASE->Prepare($query);
+            if ($stmt) {
+                $params[] = $start;
+                $params[] = $limit;
+                $types .= "ii";
+                $stmt->bind_param($types, ...$params);
+                $stmt->execute();
+                $result = $stmt->get_result();
+        
+                $data = [];
+                $replace_array_1 = explode('%', $condition);
+                $replace_array_2 = array_map(fn($word) => "<span style='background-color:#" . rand(100000, 999999) . "; color:#fff'>$word</span>", $replace_array_1);
+        
+                while ($row = $result->fetch_assoc()) {
+                    $data[] = [
+                        'community_id' => $row["community_id"],
+                        'community_title' => str_ireplace($replace_array_1, $replace_array_2, $row["community_title"]),
+                        'community_description' => str_ireplace($replace_array_1, $replace_array_2, $row["community_description"]),
+                        'community_img' => str_ireplace($replace_array_1, $replace_array_2, $row["community_img"])
+                    ];
                 }
-                $next_id = $page_array[$count] + 1;
-                if($next_id >= $total_links) {
-                    $next_link = '
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                    ';
-                } else {
-                    $next_link = '
-                    <li class="page-item"><a class="page-link" href="javascript:load_data(`'.$_POST["query"].'`, '.$next_id.')">Next</a></li>
-                    ';
-                }
-
+                $stmt->close();
             } else {
-                if($page_array[$count] == '...') {
-                    $page_link .= '
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">...</a>
-                    </li>
-                    ';
-                } else {
-                    $page_link .= '
-                    <li class="page-item">
-                        <a class="page-link" href="javascript:load_data(`'.$_POST["query"].'`, '.$page_array[$count].')">'.$page_array[$count].'</a>
-                    </li>
-                    ';
-                }
+                die(json_encode(['error' => 'SQL Error: ' . $DATABASE->error]));
             }
+            $DATABASE->Close();
+            $total_pages = ceil($total_data / $limit);
+            $pagination_html = '<div align="center"><ul class="pagination">';
+            if ($page > 1) {
+                $pagination_html .= '<li class="page-item"><a class="page-link" href="javascript:load_data(`' . $_POST["query"] . '`, ' . ($page - 1) . ')">Previous</a></li>';
+            } else {
+                $pagination_html .= '<li class="page-item disabled"><a class="page-link">Previous</a></li>';
+            }
+            for ($count = 1; $count <= $total_pages; $count++) {
+                $active = $count == $page ? ' active' : '';
+                $pagination_html .= '<li class="page-item' . $active . '"><a class="page-link" href="javascript:load_data(`' . $_POST["query"] . '`, ' . $count . ')">' . $count . '</a></li>';
+            }
+            if ($page < $total_pages) {
+                $pagination_html .= '<li class="page-item"><a class="page-link" href="javascript:load_data(`' . $_POST["query"] . '`, ' . ($page + 1) . ')">Next</a></li>';
+            } else {
+                $pagination_html .= '<li class="page-item disabled"><a class="page-link">Next</a></li>';
+            }
+            $pagination_html .= '</ul></div>';
+            echo json_encode([
+                'data' => $data,
+                'pagination' => $pagination_html,
+                'total_data' => $total_data
+            ]);
         }
-        $pagination_html .= $previous_link . $page_link . $next_link;
-        $pagination_html .= '
-            </ul>
-        </div>
-        ';
-        $output = array(
-            'data'				=>	$data,
-            'pagination'		=>	$pagination_html,
-            'total_data'		=>	$total_data
-        );
-        echo json_encode($output);
+    }
+
+    function add_community() {
+        global $DATABASE;
+        $dir = "../../../files/community/";
+        $community_id = $DATABASE->QueryMaxId("tb_community","community_id",'COM',11);
+        $img = @$_FILES["community_img"];
+        $community_img = uploadFile($dir,$img,"community_".$community_id);
+        $insert = $DATABASE->QueryInsert('tb_community',[
+            'community_id' => $community_id,
+            'community_title' => $_POST["community_title"],
+            'community_description' => $_POST["community_description"],
+            'community_img' => $community_img
+        ]);
+        if ($insert) {
+            return json_encode([
+                "data"=>"y",
+                "title"=>"สำเร็จ",
+                "message"=>"เพิ่มชุมชนเรียบร้อย",
+                "icon"=>"success"
+            ]);
+        } else {
+            return json_encode([
+                "data"=>"y",
+                "title"=>"ไม่สำเร็จ",
+                "message"=>"ไม่สามารถเพิ่มชุมชนได้",
+                "icon"=>"error"
+            ]);
+        }
+        
     }

@@ -30,6 +30,7 @@
     <script src="../assets/sweetalert2/sweetalert2.min.js"></script>
     <script src="../assets/nprogress/nprogress.js"></script>
     <script src="assets/tinymce/tinymce.min.js"></script>
+    <script src="assets/myscript.js"></script>
 </head>
 
 <body>
