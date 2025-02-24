@@ -1,4 +1,3 @@
-<script src="pages/community/script.js"></script>
 <div class="page-breadcrumb">
     <div class="row">
         <div class="col-7 align-self-center">
@@ -98,3 +97,5 @@
         </div>
     </div>
 </div>
+
+<script src="pages/community/script.js"></script>

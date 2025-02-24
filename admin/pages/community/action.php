@@ -18,8 +18,8 @@
 	switch ($fn) {
         case 'load_community'		: echo load_community(); 		break;
         case 'add_community'		: echo add_community(); 	    break;
-        case 'delete_banner'	: echo delete_banner(); 	break;
-        case 'edit_title'	    : echo edit_title(); 	    break;
+        case 'edit_community'	    : echo edit_community(); 	    break;
+        case 'delete_community'	    : echo delete_community(); 	    break;
 		default: break;
 	}
 
@@ -110,7 +110,7 @@
         global $DATABASE;
         $dir = "../../../files/community/";
         $community_id = $DATABASE->QueryMaxId("tb_community","community_id",'COM',11);
-        $img = @$_FILES["community_img"];
+        $img = $_FILES["community_img"];
         $community_img = uploadFile($dir,$img,"community_".$community_id);
         $insert = $DATABASE->QueryInsert('tb_community',[
             'community_id' => $community_id,
@@ -130,6 +130,66 @@
                 "data"=>"y",
                 "title"=>"ไม่สำเร็จ",
                 "message"=>"ไม่สามารถเพิ่มชุมชนได้",
+                "icon"=>"error"
+            ]);
+        }
+        
+    }
+
+    function edit_community() {
+        global $DATABASE;
+        $dir = "../../../files/community/";
+        $community_id = $_POST["community_id"];
+        $img = $_FILES["community_img"];
+        $community_img = uploadFile($dir,$img,"community_".$community_id);
+        $update_img = ($community_img=="") ? "" : " ,'community_img' => $community_img";
+        if ($community_img=="") {
+            $update = $DATABASE->QueryUpdate("tb_community",[
+                'community_title' => $_POST["community_title"],
+                'community_description' => $_POST["community_description"]
+            ],"community_id = '".$community_id."'");
+        } else {
+            $update = $DATABASE->QueryUpdate("tb_community",[
+                'community_title' => $_POST["community_title"],
+                'community_description' => $_POST["community_description"],
+                'community_img' => $community_img
+            ],"community_id = '".$community_id."'");
+        }
+        if ($update) {
+            return json_encode([
+                "data"=>"y",
+                "title"=>"สำเร็จ",
+                "message"=>"แก้ไขชุมชนเรียบร้อย",
+                "icon"=>"success"
+            ]);
+        } else {
+            return json_encode([
+                "data"=>"y",
+                "title"=>"ไม่สำเร็จ",
+                "message"=>"ไม่สามารถแก้ไขชุมชนได้",
+                "icon"=>"error"
+            ]);
+        }
+    }
+
+    function delete_community() {
+        global $DATABASE;
+        $dir = "../../../files/community/";
+        $obj = $DATABASE->QueryObj("SELECT * FROM tb_community WHERE community_id = '".$_POST["community_id"]."'");
+        $delete = $DATABASE->QueryDelete("tb_community","community_id = '".$_POST["community_id"]."'");
+        if ($delete) {
+            deleteFile($dir,$obj[0]["community_img"]);
+            return json_encode([
+                "data"=>"y",
+                "title"=>"สำเร็จ",
+                "message"=>"ลบชุมชนเรียบร้อย",
+                "icon"=>"success"
+            ]);
+        } else {
+            return json_encode([
+                "data"=>"n",
+                "title"=>"ไม่สำเร็จ",
+                "message"=>"ไม่สามารถลบชุมชนนี้",
                 "icon"=>"error"
             ]);
         }
