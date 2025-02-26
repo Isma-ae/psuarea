@@ -9,10 +9,10 @@ function load_data(query, page_number = 1) {
     var form_data = new FormData();
     form_data.append('query', query);
     form_data.append('page', page_number);
-    form_data.append('fn', 'load_community');
+    form_data.append('fn', 'load_collection');
 
     $.ajax({
-        url: 'pages/community/action.php',
+        url: 'pages/collection/action.php',
         method: 'POST',
         data: form_data,
         contentType: false,
@@ -25,17 +25,15 @@ function load_data(query, page_number = 1) {
                 $.each(data.data, function (index, post) {
                     html += '<tr data-com=\'' + JSON.stringify(post) + '\'>';
                     html += '<td>' + (index + 1) + '</td>';
-                    html += '<td><img src="../files/community/' + post.community_img + '?t=' + new Date().getTime() + '" width="150px;"></td>';
-                    html += '<td>' + post.community_title + '</td>';
-                    html += '<td>' + post.community_description + '</td>';
+                    html += '<td>' + post.collection_name + '</td>';
                     html += '<td><div class="btn-list">';
                     html += '<button type="button" class="btn btn-sm btn-warning edit"><i class="icon-note"></i></button>';
-                    html += '<button type="button" class="btn btn-sm btn-danger delete-community"><i class="icon-trash"></i></button>';
+                    html += '<button type="button" class="btn btn-sm btn-danger delete-collection"><i class="icon-trash"></i></button>';
                     html += '</div></td>';
                     html += '</tr>';
                 });
             } else {
-                html += '<tr><td colspan="5" class="text-center">No Data Found</td></tr>';
+                html += '<tr><td colspan="3" class="text-center">No Data Found</td></tr>';
             }
             $('#post_data').html(html);
             $('#total_data').html(data.total_data);
@@ -44,13 +42,13 @@ function load_data(query, page_number = 1) {
             $('.edit').click(function (e) {
                 e.preventDefault();
                 var data_com = $(this).closest('tr').data('com');
-                edit_community(data_com);
+                edit_collection(data_com);
             });
 
-            $('.delete-community').click(function (e) {
+            $('.delete-collection').click(function (e) {
                 e.preventDefault();
                 var data_com = $(this).closest('tr').data('com');
-                delete_community(data_com);
+                delete_collection(data_com);
             });
         }
     });
@@ -58,47 +56,41 @@ function load_data(query, page_number = 1) {
 
 $('#add').click(function (e) {
     e.preventDefault();
-    $('#fn').val('add_community');
-    $('#community_id').val('');
-    $('#img').attr('src', '../img/3673.jpg');
-    $('#community_img').val('');
-    $('#community_title').val('');
-    $('#community_description').val('');
+    $('#fn').val('add_collection');
+    $('#collection_id').val('');
+    $('#collection_name').val('');
 
-    $('#community-header-modalLabel').html('เพิ่มชุมชน');
+    $('#collection-header-modalLabel').html('เพิ่มคอลเลกชัน');
     $('#header-modal').removeClass('bg-warning');
     $('#header-modal').addClass('bg-success');
-    $('#add-community').show();
-    $('#edit-community').hide();
-    $('#community-modal').modal('show');
+    $('#add-collection').show();
+    $('#edit-collection').hide();
+    $('#collection-modal').modal('show');
 });
 
-function edit_community(data) {
-    $('#fn').val('edit_community');
-    $('#community_id').val(data.community_id);
-    $('#img').attr('src', '../files/community/' + data.community_img);
-    $('#community_img').val('');
-    $('#community_title').val(data.community_title);
-    $('#community_description').val(data.community_description);
+function edit_collection(data) {
+    $('#fn').val('edit_collection');
+    $('#collection_id').val(data.collection_id);
+    $('#collection_name').val(data.collection_name);
 
-    $('#community-header-modalLabel').html('แก้ไขชุมชน');
+    $('#collection-header-modalLabel').html('แก้ไขคอลเลกชัน');
     $('#header-modal').removeClass('bg-success');
     $('#header-modal').addClass('bg-warning');
-    $('#add-community').hide();
-    $('#edit-community').show();
-    $('#community-modal').modal('show');
+    $('#add-collection').hide();
+    $('#edit-collection').show();
+    $('#collection-modal').modal('show');
 }
 
-$('#add-community,#edit-community').click(function (e) {
+$('#add-collection,#edit-collection').click(function (e) {
     e.preventDefault();
-    $('#form-community').submit();
+    $('#form-collection').submit();
 });
 
-$('#form-community').submit(function (e) {
+$('#form-collection').submit(function (e) {
     e.preventDefault();
     var formData = new FormData(this);
     $.ajax({
-        url: "pages/community/action.php",
+        url: "pages/collection/action.php",
         type: "POST",
         data: formData,
         contentType: false,
@@ -108,29 +100,29 @@ $('#form-community').submit(function (e) {
         success: function (res) {
             Swal.fire(res.title, res.message, res.icon).then((result) => {
                 load_data(query = '');
-                $('#community-modal').modal('hide');
+                $('#collection-modal').modal('hide');
             });
         }
     });
 });
 
-function delete_community(data) {
+function delete_collection(data) {
     Swal.fire({
         title: 'คุณต้องการลบใช่หรือไม่?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'ใช่, ลบชุมชนนี้',
+        confirmButtonText: 'ใช่, ลบคอลเลกชันนี้',
         cancelButtonText: 'ยกเลิก'
     }).then((result) => {
         if (result.isConfirmed) {
             $.ajax({
                 type: "post",
-                url: "pages/community/action.php",
+                url: "pages/collection/action.php",
                 data: {
-                    fn: "delete_community",
-                    community_id: data.community_id
+                    fn: "delete_collection",
+                    collection_id: data.collection_id
                 },
                 dataType: "json",
                 success: function (res) {

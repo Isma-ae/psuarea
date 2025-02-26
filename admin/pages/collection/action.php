@@ -16,28 +16,28 @@
 	include("../../../php/functions.php");
 	$fn = isset( $_POST["fn"] ) ? $_POST["fn"] : "";
 	switch ($fn) {
-        case 'load_community'		: echo load_community(); 		break;
-        case 'add_community'		: echo add_community(); 	    break;
-        case 'edit_community'	    : echo edit_community(); 	    break;
-        case 'delete_community'	    : echo delete_community(); 	    break;
+        case 'load_collection'		: echo load_collection(); 		break;
+        case 'add_collection'		: echo add_collection(); 	    break;
+        case 'edit_collection'	    : echo edit_collection(); 	    break;
+        case 'delete_collection'	    : echo delete_collection(); 	    break;
 		default: break;
 	}
 
-    function load_community() {
+    function load_collection() {
         global $DATABASE;
         $limit = 6;
         $condition = "";
         $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
         $start = ($page - 1) * $limit;
         if (isset($_POST["query"])) {
-            $query = "SELECT * FROM tb_community";
+            $query = "SELECT * FROM tb_collection";
             $params = [];
             $types = "";
             $search_query = "";
             if (!empty($_POST["query"])) {
                 $condition = trim(preg_replace('/[^A-Za-z0-9\- ]/', '', $_POST["query"]));
                 $condition = str_replace(" ", "%", $condition);
-                $search_query = " WHERE community_title LIKE ? OR community_description LIKE ?";
+                $search_query = " WHERE collection_name LIKE ?";
                 $params[] = "%$condition%";
                 $params[] = "%$condition%";
                 $types .= "ss";
@@ -54,7 +54,7 @@
             } else {
                 die(json_encode(['error' => 'SQL Error: ' . $DATABASE->error]));
             }
-            $query .= $search_query . " ORDER BY community_id DESC LIMIT ?, ?";
+            $query .= $search_query . " ORDER BY collection_id DESC LIMIT ?, ?";
             $stmt = $DATABASE->Prepare($query);
             if ($stmt) {
                 $params[] = $start;
@@ -70,10 +70,8 @@
         
                 while ($row = $result->fetch_assoc()) {
                     $data[] = [
-                        'community_id' => $row["community_id"],
-                        'community_title' => str_ireplace($replace_array_1, $replace_array_2, $row["community_title"]),
-                        'community_description' => str_ireplace($replace_array_1, $replace_array_2, $row["community_description"]),
-                        'community_img' => str_ireplace($replace_array_1, $replace_array_2, $row["community_img"])
+                        'collection_id' => $row["collection_id"],
+                        'collection_name' => str_ireplace($replace_array_1, $replace_array_2, $row["collection_name"]),
                     ];
                 }
                 $stmt->close();
@@ -106,90 +104,63 @@
         }
     }
 
-    function add_community() {
+    function add_collection() {
         global $DATABASE;
-        $dir = "../../../files/community/";
-        $community_id = $DATABASE->QueryMaxId("tb_community","community_id",'COM',11);
-        $img = $_FILES["community_img"];
-        $community_img = uploadFile($dir,$img,"community_".$community_id);
-        $insert = $DATABASE->QueryInsert('tb_community',[
-            'community_id' => $community_id,
-            'community_title' => $_POST["community_title"],
-            'community_description' => $_POST["community_description"],
-            'community_img' => $community_img
-        ]);
+        $collection_id = $DATABASE->QueryMaxId("tb_collection","collection_id",'COM',11);
+        $insert = $DATABASE->QueryInsert('tb_collection',['collection_id' => $collection_id,'collection_name' => $_POST["collection_name"]]);
         if ($insert) {
             return json_encode([
                 "data"=>"y",
                 "title"=>"สำเร็จ",
-                "message"=>"เพิ่มชุมชนเรียบร้อย",
+                "message"=>"เพิ่มคอลเลกชันเรียบร้อย",
                 "icon"=>"success"
             ]);
         } else {
             return json_encode([
                 "data"=>"y",
                 "title"=>"ไม่สำเร็จ",
-                "message"=>"ไม่สามารถเพิ่มชุมชนได้",
+                "message"=>"ไม่สามารถเพิ่มคอลเลกชันได้",
                 "icon"=>"error"
             ]);
         }
         
     }
 
-    function edit_community() {
+    function edit_collection() {
         global $DATABASE;
-        $dir = "../../../files/community/";
-        $community_id = $_POST["community_id"];
-        $img = $_FILES["community_img"];
-        $community_img = uploadFile($dir,$img,"community_".$community_id);
-        $update_img = ($community_img=="") ? "" : " ,'community_img' => $community_img";
-        if ($community_img=="") {
-            $update = $DATABASE->QueryUpdate("tb_community",[
-                'community_title' => $_POST["community_title"],
-                'community_description' => $_POST["community_description"]
-            ],"community_id = '".$community_id."'");
-        } else {
-            $update = $DATABASE->QueryUpdate("tb_community",[
-                'community_title' => $_POST["community_title"],
-                'community_description' => $_POST["community_description"],
-                'community_img' => $community_img
-            ],"community_id = '".$community_id."'");
-        }
+        $update = $DATABASE->QueryUpdate("tb_collection",['collection_name' => $_POST["collection_name"]],"collection_id = '".$_POST["collection_id"]."'");
         if ($update) {
             return json_encode([
                 "data"=>"y",
                 "title"=>"สำเร็จ",
-                "message"=>"แก้ไขชุมชนเรียบร้อย",
+                "message"=>"แก้ไขคอลเลกชันเรียบร้อย",
                 "icon"=>"success"
             ]);
         } else {
             return json_encode([
                 "data"=>"y",
                 "title"=>"ไม่สำเร็จ",
-                "message"=>"ไม่สามารถแก้ไขชุมชนได้",
+                "message"=>"ไม่สามารถแก้ไขคอลเลกชันได้",
                 "icon"=>"error"
             ]);
         }
     }
 
-    function delete_community() {
+    function delete_collection() {
         global $DATABASE;
-        $dir = "../../../files/community/";
-        $obj = $DATABASE->QueryObj("SELECT * FROM tb_community WHERE community_id = '".$_POST["community_id"]."'");
-        $delete = $DATABASE->QueryDelete("tb_community","community_id = '".$_POST["community_id"]."'");
+        $delete = $DATABASE->QueryDelete("tb_collection","collection_id = '".$_POST["collection_id"]."'");
         if ($delete) {
-            deleteFile($dir,$obj[0]["community_img"]);
             return json_encode([
                 "data"=>"y",
                 "title"=>"สำเร็จ",
-                "message"=>"ลบชุมชนเรียบร้อย",
+                "message"=>"ลบคอลเลกชันเรียบร้อย",
                 "icon"=>"success"
             ]);
         } else {
             return json_encode([
                 "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
-                "message"=>"ไม่สามารถลบชุมชนนี้",
+                "message"=>"ไม่สามารถลบคอลเลกชันนี้",
                 "icon"=>"error"
             ]);
         }

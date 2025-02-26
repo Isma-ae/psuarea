@@ -32,7 +32,7 @@
                     </div>
                     <div class="row" style="margin-bottom: 20px;">
                         <div class="col-md-6"></div>
-                        <div class="col-md-3 text-right"><b>ชุมชนรวม - <span id="total_data"></span></b></div>
+                        <div class="col-md-3 text-right"><b>คอลเลกชัน - <span id="total_data"></span></b></div>
                         <div class="col-md-3">
                             <input type="text" name="search" class="form-control" id="search"
                                 placeholder="Search Here" />
@@ -44,8 +44,6 @@
                                 <tr>
                                     <th width="10px">#</th>
                                     <th>ชื่อคอลเลกชัน</th>
-                                    <th>ชื่อชุมชน</th>
-                                    <th>คำอธิบายสั้น ๆ</th>
                                     <th width="120px">จัดการ</th>
                                 </tr>
                             </thead>
@@ -59,40 +57,26 @@
     </div>
 </div>
 
-<div id="community-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="community-modalLabel"
+<div id="collection-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="collection-modalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header modal-colored-header bg-warning" id="header-modal">
-                <h4 class="modal-title" id="community-header-modalLabel">Modal Heading</h4>
+                <h4 class="modal-title" id="collection-header-modalLabel">Modal Heading</h4>
                 <button type="button" class="close" data-backdrop="false" data-dismiss="modal"
                     aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <form id="form-community">
-                    <input type="hidden" id="community_id" name="community_id">
+                <form id="form-collection">
+                    <input type="hidden" id="collection_id" name="collection_id">
                     <input type="hidden" name="fn" id="fn">
-                    <div class="mb-3 text-center">
-                        <img id="img" src="../img/3673.jpg" alt="community image" class="img-thumbnail"
-                            style="width: 300px;" onerror="errorImage(this,'../img/3673.jpg')">
-                    </div>
                     <div class="mb-3">
-                        <label for="community_img" class="form-label">ภาพปกชุมชน</label>
-                        <input class="form-control" type="file" name="community_img" id="community_img" accept="img/*"
-                            onchange="imgf_change(this,'#img','../img/3673.jpg')">
+                        <label for="collection_name" class="form-label">ชื่อคอลเลกชัน</label>
+                        <input class="form-control" type="text" name="collection_name" id="collection_name"
+                            placeholder="กรุณากรอกชื่อคอลเลกชัน...">
                     </div>
-                    <div class="mb-3">
-                        <label for="community_title" class="form-label">ชื่อชุมชน</label>
-                        <input class="form-control" type="text" name="community_title" id="community_title"
-                            placeholder="กรุณากรอกชื่อชุมชน...">
-                    </div>
-                    <div class="mb-3">
-                        <label for="category_id" class="form-label">คำอธิบายสั้น ๆ</label>
-                        <input class="form-control" type="text" name="community_description" id="community_description"
-                            placeholder="กรุณากรอกคำอธิบายสั้น ๆ...">
-                    </div>
-                    <button type="submit" class="btn btn-success" id="add-community">เพิ่มชุมชน</button>
-                    <button type="submit" class="btn btn-warning" id="edit-community">แก้ไขชุมชน</button>
+                    <button type="submit" class="btn btn-success" id="add-collection">เพิ่มคอลเลกชัน</button>
+                    <button type="submit" class="btn btn-warning" id="edit-collection">แก้ไขคอลเลกชัน</button>
                 </form>
             </div>
         </div>

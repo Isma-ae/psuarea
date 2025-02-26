@@ -21,6 +21,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="assets/select2/css/select2.min.css">
+    <link rel="stylesheet" href="assets/select2-bootstrap4-theme/select2-bootstrap4.min.css">
     <link href="dist/css/style.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="assets/prism/prism.css">
     <link href="../assets/sweetalert2/sweetalert2.min.css" rel="stylesheet">
@@ -58,6 +60,7 @@
     <script src="dist/js/sidebarmenu.js"></script>
     <script src="dist/js/custom.min.js"></script>
     <script src="assets/prism/prism.js"></script>
+    <script src="assets/select2/js/select2.full.min.js"></script>
 </body>
 
 </html>
