@@ -1,7 +1,7 @@
 <?php
 	session_start();
 
-	if (!isset($_SESSION["user_name"])) {
+	if (!isset($_SESSION["user_fname"])) {
 		echo json_encode([
             "data"=>"n",
             "title"=>"ไม่สำเร็จ",
@@ -36,7 +36,8 @@
     if ($insert) {
         $DATABASE->QueryInsert('tb_file',[
             'file_id' => $file_id,
-            'file_name' => $file_name
+            'file_name' => $file_name,
+            'file_type' => 'file'
         ]);
         $writer_prefixs = $_POST['writer_prefix'];
         $writer_fnames = $_POST['writer_fname'];
@@ -44,14 +45,16 @@
         $writer_mains = $_POST['writer_main'];
         foreach ($writer_fnames as $index => $writer_fname) {
             $writer_id = $DATABASE->QueryMaxId("tb_writer","writer_id",'WRT',11);
-            $writer_prefix = $writer_prefixs[$index];
-            $writer_lname = $writer_lnames[$index];
-            $writer_main = $writer_mains[$index];
+            if (!isset($writer_prefixs[$index], $writer_lnames[$index])) {
+                continue;
+            }
+            $writer_main = isset($writer_mains[$index]) ? $writer_mains[$index] : 2;
             $DATABASE->QueryInsert('tb_writer',[
                 'writer_id' => $writer_id,
-                'writer_prefix' => $writer_prefix,
+                'writer_prefix' => $writer_prefixs[$index],
                 'writer_fname' => $writer_fname,
-                'writer_lname' => $writer_lname,
+                'writer_lname' => $writer_lnames[$index],
+                'item_id' => $item_id,
                 'writer_main' => $writer_main
 
             ]);
@@ -61,18 +64,19 @@
             $subject_id = $DATABASE->QueryMaxId("tb_subject","subject_id");
             $DATABASE->QueryInsert('tb_subject',[
                 'subject_id' => $subject_id,
-                'subject_name' => $subject_name
+                'subject_name' => $subject_name,
+                'item_id' => $item_id
 
             ]);
         }
-        return json_encode([
+        echo json_encode([
             "data"=>"y",
             "title"=>"สำเร็จ",
             "message"=>"เพิ่มชุมชนเรียบร้อย",
             "icon"=>"success"
         ]);
     } else {
-        return json_encode([
+        echo json_encode([
             "data"=>"y",
             "title"=>"ไม่สำเร็จ",
             "message"=>"ไม่สามารถเพิ่มชุมชนได้",

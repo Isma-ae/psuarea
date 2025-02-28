@@ -1,5 +1,6 @@
 <?php
     session_start();
+    include("../php/functions.php");
     if (!isset($_SESSION["user_name"])) {
         header('Location: ./login');
     }

@@ -308,7 +308,13 @@
                         <div class="form-group">
                             <label for="exampleInputEmail1">ประเภทงาน</label>
                             <select class="form-control" name="type_id" style="width: 100%;">
-                                <option value="1">งานวิจัย</option>
+                                <?php
+                                    $obj = $DATABASE->QueryObj("SELECT * FROM tb_type");
+                                    foreach ($obj as $i => $value) {
+                                ?>
+                                <option value="<?php echo $value['type_id'];?>"><?php echo $value['type_name'];?>
+                                </option>
+                                <?php }?>
                             </select>
                         </div>
                         <div class="form-group">

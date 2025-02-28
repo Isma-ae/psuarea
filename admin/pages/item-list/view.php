@@ -44,7 +44,7 @@
                             <thead>
                                 <tr>
                                     <th width="10px">#</th>
-                                    <th width="200px;">ภาพปก</th>
+                                    <th width="90px">ปี</th>
                                     <th>รายการ</th>
                                     <th>ผู้แต่ง</th>
                                     <th width="90px">อัปโหลด</th>

@@ -24,13 +24,13 @@ function load_data(query, page_number = 1) {
                 $.each(data.data, function (index, post) {
                     html += '<tr>';
                     html += '<td>' + (index + 1) + '</td>';
-                    html += '<td><img src="../files/item/' + post.item_cover + '?t=' + new Date().getTime() + '" width="150px;"></td>';
+                    html += '<td>' + post.item_issued + '</td>';
                     html += '<td>' + post.item_title + '</td>';
                     html += '<td>' + post.writer_name + '</td>';
                     html += '<td><button type="button" class="btn btn-sm btn-success edit"><i class="fas fa-upload"></i></button></td>';
                     html += '<td><div class="btn-list">';
                     html += '<button type="button" class="btn btn-sm btn-info edit"><i class="icon-eye"></i></button>';
-                    html += '<button type="button" class="btn btn-sm btn-warning edit"><i class="icon-note"></i></button>';
+                    html += '<a href="?p=item-edit&item_id=' + post.item_id + '" class="btn btn-sm btn-warning edit"><i class="icon-note"></i></a>';
                     html += '<button type="button" class="btn btn-sm btn-danger delete-community"><i class="icon-trash"></i></button>';
                     html += '</div></td>';
                     html += '</tr>';

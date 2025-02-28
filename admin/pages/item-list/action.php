@@ -21,7 +21,7 @@
         $query = "SELECT 
                 i.item_id, 
                 i.item_title, 
-                i.item_cover,
+                i.item_issued,
                 GROUP_CONCAT(DISTINCT CONCAT(w.writer_prefix, ' ', w.writer_fname, ' ', w.writer_lname) 
                     ORDER BY w.writer_fname SEPARATOR ', ') AS writer_names
             FROM tb_item AS i
@@ -31,12 +31,18 @@
         $types = "";
         $search_query = "";
         if (!empty($_POST["query"])) {
-            $condition = trim(preg_replace('/[^A-Za-z0-9\- ]/', '', $_POST["query"]));
+            $condition = trim(htmlspecialchars($_POST["query"], ENT_QUOTES, 'UTF-8'));
             $condition = str_replace(" ", "%", $condition);
-            $search_query = " WHERE item_title LIKE ? OR writer_names LIKE ?";
+            $search_query = " WHERE i.item_title LIKE ? 
+                            OR EXISTS (
+                                SELECT 1 FROM tb_writer w 
+                                WHERE w.item_id = i.item_id 
+                                AND (w.writer_fname LIKE ? OR w.writer_lname LIKE ?)
+                            )";
             $params[] = "%$condition%";
             $params[] = "%$condition%";
-            $types .= "ss";
+            $params[] = "%$condition%";
+            $types .= "sss";
         }
         $stmt = $DATABASE->Prepare("SELECT COUNT(DISTINCT i.item_id) FROM tb_item AS i " . $search_query);
         if ($stmt) {
@@ -73,7 +79,7 @@
                     'item_id' => $row["item_id"],
                     'item_title' => str_ireplace($replace_array_1, $replace_array_2, $row["item_title"]),
                     'writer_name' => str_ireplace($replace_array_1, $replace_array_2, $row["writer_names"]),
-                    'item_cover' => str_ireplace($replace_array_1, $replace_array_2, $row["item_cover"])
+                    'item_issued' => str_ireplace($replace_array_1, $replace_array_2, $row["item_issued"])
                 ];
             }
             $stmt->close();

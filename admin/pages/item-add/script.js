@@ -59,7 +59,7 @@ $(document).ready(function () {
         e.preventDefault();
         var formData = new FormData(this);
         $.ajax({
-            url: "pages/home-page/action.php",
+            url: "pages/item-add/action.php",
             type: "POST",
             data: formData,
             contentType: false,
@@ -68,7 +68,7 @@ $(document).ready(function () {
             dataType: "json",
             success: function (res) {
                 Swal.fire(res.title, res.message, res.icon).then((result) => {
-                    load_page();
+                    window.location.href = "?p=item-list";
                 });
             }
         });

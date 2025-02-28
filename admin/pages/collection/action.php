@@ -35,7 +35,7 @@
             $types = "";
             $search_query = "";
             if (!empty($_POST["query"])) {
-                $condition = trim(preg_replace('/[^A-Za-z0-9\- ]/', '', $_POST["query"]));
+                $condition = trim(htmlspecialchars($_POST["query"], ENT_QUOTES, 'UTF-8'));
                 $condition = str_replace(" ", "%", $condition);
                 $search_query = " WHERE collection_name LIKE ?";
                 $params[] = "%$condition%";
