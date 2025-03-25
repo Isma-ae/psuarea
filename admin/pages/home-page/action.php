@@ -32,7 +32,7 @@
 
     function add_banner() {
         global $DATABASE;
-        $dir = "../../../file/banner/";
+        $dir = "../../../files/banner/";
         $img = @$_FILES["page_banner"];
         $page_banner = uploadFile($dir,$img,"banner");
         if ($page_banner != "") {
@@ -65,7 +65,7 @@
 
     function delete_banner() {
         global $DATABASE;
-        $dir = "../../../file/banner/";
+        $dir = "../../../files/banner/";
         $obj = $DATABASE->QueryObj("SELECT * FROM tb_page WHERE page_id = 1");
         $delete = $DATABASE->QueryUpdate('tb_page',['page_banner' => ''],'page_id = 1');
         if ($delete) {

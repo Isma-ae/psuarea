@@ -14,26 +14,74 @@
 <section class="cart_area">
     <div class="container">
         <div class="just-padding">
+            <?php
+                if (!isset($_GET["community"])) {
+            ?>
+            <input type="hidden" id="community_id" value="">
             <h2 class="contact-title">กำลังเรียกดู โดย วันที่ออก</h2>
+            <?php
+                } else {
+                    $sql = "SELECT * FROM tb_community WHERE MD5(community_id) = '".$_GET["community"]."'";
+                    $obj = $DATABASE->QueryObj($sql);
+            ?>
+            <input type="hidden" id="community_id" value="<?php echo $_GET["community"];?>">
+            <h2 class="contact-title" id="community_title"><?= $obj[0]["community_title"];?></h2>
+            <div id="community_img"><img src="files/community/<?= $obj[0]["community_img"];?>" width="25%"></div>
+            <hr>
+            <h3>เรียกดู</h3>
+            <ul class="nav nav-pills nav-fill">
+                <li class="nav-item my-nav-item">
+                    <a class="nav-link my-nav-link" href="?p=communities&community=<?php echo $_GET["community"];?>">ชุมชนย่อยและคอลเลคชัน</a>
+                </li>
+                <li class="nav-item my-nav-item">
+                    <a class="nav-link my-nav-link active">ตามวันที่ออก</a>
+                </li>
+                <li class="nav-item my-nav-item">
+                    <a class="nav-link my-nav-link" href="?p=author&community=<?php echo $_GET["community"];?>">โดยผู้เขียน</a>
+                </li>
+                <li class="nav-item my-nav-item">
+                    <a class="nav-link  my-nav-link" href="?p=title&community=<?php echo $_GET["community"];?>">ตามชื่อเรื่อง</a>
+                </li>
+                <li class="nav-item my-nav-item">
+                    <a class="nav-link  my-nav-link" href="?p=subject&community=<?php echo $_GET["community"];?>">ตามหัวเรื่อง</a>
+                </li>
+                <li class="nav-item my-nav-item">
+                    <a class="nav-link  my-nav-link" href="?p=srsc&community=<?php echo $_GET["community"];?>">ตามหมวดหมู่หัวเรื่อง</a>
+                </li>
+            </ul>
+            <br>
+            <?php }?>
             <h4>กรองผลลัพธ์ตามปีหรือเดือน</h4>
             <form class="form-contact contact_form" action="contact_process.php" method="post" id="contactForm"
                 novalidate="novalidate">
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <select class="shipping_select">
-                                <option value="1">Bangladesh</option>
-                                <option value="2">India</option>
-                                <option value="4">Pakistan</option>
+                            <select class="shipping_select" id="item_issued_year">
+                                <option value=""> -- เลือกปี -- </option>
+                                <?php
+                                    $sql_year = "SELECT item_issued_year FROM tb_item GROUP BY item_issued_year ORDER BY item_issued_year DESC";
+                                    $obj_year = $DATABASE->QueryObj($sql_year);
+                                    foreach ($obj_year as $key_year => $year) {
+                                        echo '<option value="'.$year["item_issued_year"].'">'.$year["item_issued_year"].'</option>';
+                                    }
+                                ?>
                             </select>
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <select class="shipping_select">
-                                <option value="1">Bangladesh</option>
-                                <option value="2">India</option>
-                                <option value="4">Pakistan</option>
+                            <select class="shipping_select" id="item_issued_month">
+                                <option value=""> -- เลือกเดือน -- </option>
+                                <?php
+                                    $monthsThai = [
+                                        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                                        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+                                    ];
+                                    foreach ($monthsThai as $index => $month) {
+                                        echo '<option value="'.($index + 1).'">'.$month.'</option>';
+                                    }
+                                ?>
                             </select>
                         </div>
                     </div>
@@ -41,11 +89,11 @@
                         <div class="form-group">
                             <div class="search_widget">
                                 <div class="input-group mb-3 search_input">
-                                    <input type="text" class="form-control" placeholder="กรองผลลัพธ์ตามวันที่..."
+                                    <input type="text" class="form-control" id="item_issued_day" placeholder="กรองผลลัพธ์ตามวันที่..."
                                         onfocus="this.placeholder = ''"
                                         onblur="this.placeholder = 'กรองผลลัพธ์ตามวันที่...'">
                                     <div class="input-group-append">
-                                        <button class="btn" type="button"><i class="ti-book"></i> เรียกดู</button>
+                                        <button class="btn" type="button" id="search-by-date"><i class="ti-book"></i> เรียกดู</button>
                                     </div>
                                 </div>
                             </div>
@@ -59,61 +107,8 @@
 
 <section class="blog_area my_section_padding2">
     <div class="container">
-        <h2 class="contact-title">Get in Touch</h2>
-        <div class="blog-author row my-blog" style="margin-bottom:20px;">
-            <div class="col-2">
-                <img src="img/blog/author.png" alt="">
-            </div>
-            <div class="col-10">
-                <span class="badge badge-primary">Primary</span>
-                <a href="#">
-                    <h4>Harvard milan</h4>
-                </a>
-                <ul class="blog-info-link">
-                    <li><a href="#"><i class="far fa-user"></i> Travel, Lifestyle</a></li>
-                    <li><a href="#"><i class="far fa-comments"></i> 03 Comments</a></li>
-                </ul>
-                <p>Second divided from form fish beast made. Every of seas all gathered use saying you're, he
-                    our dominion twon Second divided from</p>
-            </div>
-        </div>
-        <div class="blog-author row my-blog" style="margin-bottom:20px;">
-            <div class="col-2">
-                <img src="img/blog/author.png" alt="">
-            </div>
-            <div class="col-10">
-                <span class="badge badge-primary">Primary</span>
-                <a href="#">
-                    <h4>Harvard milan</h4>
-                </a>
-                <ul class="blog-info-link">
-                    <li><a href="#"><i class="far fa-user"></i> Travel, Lifestyle</a></li>
-                    <li><a href="#"><i class="far fa-comments"></i> 03 Comments</a></li>
-                </ul>
-                <p>Second divided from form fish beast made. Every of seas all gathered use saying you're, he
-                    our dominion twon Second divided from</p>
-            </div>
-        </div>
-
-        <nav class="my-blog-pagination justify-content-center d-flex">
-            <ul class="pagination">
-                <li class="page-item">
-                    <a href="#" class="page-link" aria-label="Previous">
-                        <i class="ti-angle-left"></i>
-                    </a>
-                </li>
-                <li class="page-item">
-                    <a href="#" class="page-link">1</a>
-                </li>
-                <li class="page-item active">
-                    <a href="#" class="page-link">2</a>
-                </li>
-                <li class="page-item">
-                    <a href="#" class="page-link" aria-label="Next">
-                        <i class="ti-angle-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <p id="pagination_info"></p>
+        <div id="item-data"></div>
+        <nav class="my-blog-pagination justify-content-center d-flex" id="pagination_link"></nav>
     </div>
 </section>

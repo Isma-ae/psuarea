@@ -49,15 +49,24 @@
 		    unlink($dir.$filename);
 		}
  	}
- 	/*function autoRemoveFileTemp($dir, $time) {
-		$files = scandir($dir);
-	    foreach ($files as $key => $value) {
-	        if( $value=="." || $value==".." ) continue;
-	        $a = filemtime($dir.$value);
-	        $b = time();
-	        $c = $b-$a;
-	        if( $c > $time ) {
-	            deleteFile($dir,$value);
-	        }
-	    }
-	}*/
+ 	function deleteFolder($folderPath) {
+		if (!is_dir($folderPath)) {
+			return false; // Not a directory
+		}
+	
+		// Scan all files and subdirectories
+		$files = array_diff(scandir($folderPath), array('.', '..'));
+	
+		// Loop through and delete each file/subdirectory
+		foreach ($files as $file) {
+			$filePath = $folderPath . DIRECTORY_SEPARATOR . $file;
+			
+			if (is_dir($filePath)) {
+				deleteFolder($filePath); // Recursively delete subdirectories
+			} else {
+				unlink($filePath); // Delete file
+			}
+		}
+	
+		return rmdir($folderPath); // Remove now-empty directory
+	}

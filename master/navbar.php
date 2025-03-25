@@ -1,3 +1,16 @@
+<script>
+    $(document).ready(function () {
+        $('#search_input').keypress(function (e) {
+            var key = e.which;
+            if (key == 13) // the enter key code
+            {
+                var search_term = $('#search_input').val();
+                window.location.href = '?p=search&search_term=' + search_term;
+                return false;
+            }
+        });
+    });
+</script>
 <header class="main_menu home_menu">
     <div class="container">
         <div class="row align-items-center justify-content-center">

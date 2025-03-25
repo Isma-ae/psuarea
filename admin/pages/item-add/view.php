@@ -24,6 +24,7 @@
                 <div class="card-body">
                     <h4 class="card-title">รายการ</h4>
                     <form class="mt-4" id="form-item">
+                        <input type="hidden" name="fn" value="add_item">
                         <input type="hidden" name="item_id">
                         <div class="form-group">
                             <label for="item_title">ชื่อเรื่อง</label>
@@ -38,6 +39,16 @@
                         <div class="form-group">
                             <label for="file_name">ไฟล์</label>
                             <input type="file" class="form-control" name="file_name" placeholder="Enter email">
+                        </div>
+                        <div class="form-group">
+                            <label for="community_id">ชุมชน</label>
+                            <select class="form-control" name="community_id">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="collection_id">คอลเลกชัน</label>
+                            <select class="form-control" name="collection_id">
+                            </select>
                         </div>
                         <hr>
                         <h4>ผู้เขียน</h4>
@@ -258,20 +269,29 @@
                         </div>
                         <hr>
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="item_issued">ปีที่ออก</label>
-                                    <input type="text" class="form-control" name="item_issued"
+                                    <label for="item_issued_day">วันที่ออก</label>
+                                    <select class="form-control" name="item_issued_day"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="item_issued_month">เดือน</label>
+                                    <select class="form-control" name="item_issued_month"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="item_issued_year">ปี</label>
+                                    <input type="text" class="form-control" name="item_issued_year"
                                         placeholder="กรุณากรอกปีที่ออก...">
                                 </div>
                             </div>
-                            <div class="col-md-9">
-                                <div class="form-group">
-                                    <label for="item_description">คำอธิบาย</label>
-                                    <input type="text" class="form-control" name="item_description"
-                                        placeholder="กรุณากรอกคำอธิบาย...">
-                                </div>
-                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="item_description">คำอธิบายสั้น ๆ</label>
+                            <input type="text" class="form-control" name="item_description" placeholder="กรุณากรอกคำอธิบาย...">
                         </div>
                         <div class="form-group">
                             <label for="item_abstract">บทคัดย่อ</label>
@@ -287,6 +307,11 @@
                             <label for="item_citation">การอ้างอิง</label>
                             <textarea type="text" class="form-control" name="item_citation"
                                 placeholder="กรุณากรอกการอ้างอิง..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="item_uri">ลิงค์อ่าน e-book</label>
+                            <input type="text" class="form-control" name="item_uri"
+                                placeholder="กรุณากรอกสำนักพิมพ์...">
                         </div>
                         <div class="form-group">
                             <label for="item_publisher">สำนักพิมพ์</label>

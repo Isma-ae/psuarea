@@ -23,7 +23,7 @@ $(function () {
                     });
                 } else {
                     if (res.data[0].page_banner != "") {
-                        $('#banner_img').find('img').attr('src', '../file/banner/' + res.data[0].page_banner);
+                        $('#banner_img').find('img').attr('src', '../files/banner/' + res.data[0].page_banner);
                         $('#banner_img').show();
                         $('#form_banner').hide();
                     } else {

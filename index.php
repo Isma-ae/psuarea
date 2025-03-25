@@ -1,4 +1,7 @@
-<?php $page = isset($_GET['p']) ? $_GET['p']:'home';?>
+<?php
+    include("php/functions.php");
+    $page = isset($_GET['p']) ? $_GET['p']:'home';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,6 +26,10 @@
 
     <script src="assets/js/jquery-1.12.1.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="assets/jquery.auto-complete/jquery.auto-complete.css">
+    <script src="assets/jquery.auto-complete/jquery.auto-complete.min.js"></script>
+
 </head>
 
 <body>

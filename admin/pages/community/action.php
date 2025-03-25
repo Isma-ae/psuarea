@@ -142,7 +142,6 @@
         $community_id = $_POST["community_id"];
         $img = $_FILES["community_img"];
         $community_img = uploadFile($dir,$img,"community_".$community_id);
-        $update_img = ($community_img=="") ? "" : " ,'community_img' => $community_img";
         if ($community_img=="") {
             $update = $DATABASE->QueryUpdate("tb_community",[
                 'community_title' => $_POST["community_title"],
