@@ -69,10 +69,3 @@
     padding-top: 15px;
     padding-bottom: 15px;
 }
-
-#item-data p {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}

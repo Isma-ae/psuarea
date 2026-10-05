@@ -23,14 +23,14 @@
 
     function search_author() {
         global $DATABASE;
-        $search = $_POST['search'];
-        $sql = "SELECT writer_prefix, writer_fname, writer_lname
+        $search = $DATABASE->Escape($_POST['search']);
+        $sql = "SELECT writer_fname, writer_lname, COUNT(DISTINCT CONCAT(writer_fname, ' ', writer_lname)) AS count_author
             FROM tb_writer
             WHERE writer_fname LIKE '%$search%'
                 OR writer_lname LIKE '%$search%'
-                OR CONCAT(writer_prefix, writer_fname, ' ', writer_lname) LIKE '%$search%'
-            GROUP BY writer_prefix, writer_fname, writer_lname
-            ORDER BY writer_prefix, writer_fname, writer_lname
+                OR CONCAT(writer_fname, ' ', writer_lname) LIKE '%$search%'
+            GROUP BY writer_fname, writer_lname
+            ORDER BY writer_fname, writer_lname
         ";
         $data = $DATABASE->QueryObj($sql);
         $response = array();
@@ -39,8 +39,8 @@
     }
     function search_subject() {
         global $DATABASE;
-        $search = $_POST['search'];
-        $sql = "SELECT subject_name
+        $search = $DATABASE->Escape($_POST['search']);
+        $sql = "SELECT subject_name, COUNT(subject_name) AS count_subject
             FROM tb_subject
             WHERE subject_name  LIKE '%$search%'
             GROUP BY subject_name
@@ -56,10 +56,16 @@
         global $DATABASE;
         $offset = isset($_POST['offset']) ? (int)$_POST['offset'] : 0;
         $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
-        $sql = "SELECT writer_prefix, writer_fname, writer_lname
+        $author_in_param = $DATABASE->Escape($_POST['author_in_param']);
+        $filter = "";
+        if (!empty($author_in_param) && $author_in_param != null) {
+            $filter = "WHERE CONCAT(writer_fname, ' ', writer_lname) <> '$author_in_param'";
+        }
+        $sql = "SELECT writer_fname, writer_lname, COUNT(DISTINCT CONCAT(writer_fname, ' ', writer_lname)) AS count_author
             FROM tb_writer 
-            GROUP BY writer_prefix, writer_fname, writer_lname
-            ORDER BY writer_prefix, writer_fname, writer_lname
+            $filter
+            GROUP BY writer_fname, writer_lname
+            ORDER BY writer_fname, writer_lname
         ";
         $data = $DATABASE->QueryObj($sql." LIMIT $limit OFFSET $offset");
         $all = $DATABASE->QueryNumRow($sql);
@@ -73,8 +79,14 @@
         global $DATABASE;
         $offset = isset($_POST['offset']) ? (int)$_POST['offset'] : 0;
         $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 10;
-        $sql = "SELECT subject_name
-            FROM tb_subject 
+        $subject_in_param = $DATABASE->Escape($_POST['subject_in_param']);
+        $filter = "";
+        if (!empty($subject_in_param) && $subject_in_param != null) {
+            $filter = "WHERE subject_name <> '$subject_in_param'";
+        }
+        $sql = "SELECT subject_name, COUNT(subject_name) AS count_subject
+            FROM tb_subject
+            $filter
             GROUP BY subject_name
             ORDER BY subject_id
             LIMIT $limit OFFSET $offset
@@ -91,7 +103,7 @@
         $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
         $start = ($page - 1) * $limit;
         
-        $query_param = isset($_POST["query"]) ? trim($_POST["query"]) : "";
+        $query_param = isset($_POST["query"]) ? trim($DATABASE->Escape($_POST["query"])) : "";
         $writers = isset($_POST["writer"]) ? json_decode($_POST["writer"], true) : [];
         $subjects = isset($_POST["subject"]) ? json_decode($_POST["subject"], true) : [];
     
@@ -105,7 +117,7 @@
                                 OR EXISTS (
                                     SELECT 1 FROM tb_writer w 
                                     WHERE w.item_id = i.item_id 
-                                    AND CONCAT(w.writer_prefix, w.writer_fname, ' ', w.writer_lname) LIKE '%$query_param%'
+                                    AND CONCAT(w.writer_fname, ' ', w.writer_lname) LIKE '%$query_param%'
                                 )
                                 OR EXISTS (
                                     SELECT 1 FROM tb_subject s
@@ -119,7 +131,7 @@
             $writer_conditions = [];
             foreach ($writers as $writer) {
                 $writer = $DATABASE->Escape($writer);
-                $writer_conditions[] = "(CONCAT(w.writer_prefix, w.writer_fname, ' ', w.writer_lname) LIKE '%$writer%')";
+                $writer_conditions[] = "(CONCAT(w.writer_fname, ' ', w.writer_lname) LIKE '%$writer%')";
             }
             if (!empty($writer_conditions)) {
                 $search_query .= " AND EXISTS (
@@ -131,14 +143,14 @@
         }
     
         // ค้นหาตามช่วงปี
-        $min_year = isset($_POST["min_year"]) ? (int)$_POST["min_year"] : null;
-        $max_year = isset($_POST["max_year"]) ? (int)$_POST["max_year"] : null;
+        $min_year = isset($_POST["min_year"]) ? (int)$DATABASE->Escape($_POST["min_year"]) : null;
+        $max_year = isset($_POST["max_year"]) ? (int)$DATABASE->Escape($_POST["max_year"]) : null;
         if (!empty($min_year) && !empty($max_year)) {
             $search_query .= " AND (i.item_issued_year BETWEEN '$min_year' AND '$max_year')";
         }
     
         // ตรวจสอบไฟล์
-        if ($_POST["has_file"] == 'y') {
+        if ($DATABASE->Escape($_POST["has_file"]) == 'y') {
             $search_query .= " AND (EXISTS (
                                     SELECT 1 FROM tb_file fi
                                     WHERE i.item_id = fi.item_id 
@@ -161,7 +173,7 @@
                 )";
             }
         }
-        $order_by = $_POST["order_by"];
+        $order_by = $DATABASE->Escape($_POST["order_by"]);
         if($order_by == 1) {
             $order = "i.item_id DESC";
         } elseif ($order_by == 2) {
@@ -179,7 +191,7 @@
         // คำนวณจำนวนทั้งหมด
         $total_query = "SELECT COUNT(DISTINCT i.item_id) AS total FROM tb_item AS i $search_query";
         $total_result = $DATABASE->QueryObj($total_query);
-        $total_data = $total_result[0]['total'] ?? 0;
+        $total_data = isset($total_result[0]['total']) ? $total_result[0]['total'] : 0;
         $total_pages = ceil($total_data / $limit);
     
         // คำสั่ง SQL สำหรับดึงข้อมูล
@@ -190,7 +202,7 @@
                     i.item_issued_year,
                     i.item_publisher,
                     i.item_abstract,
-                    GROUP_CONCAT(DISTINCT CONCAT('<a href=\"?p=search&search_term=', w.writer_prefix, w.writer_fname, ' ', w.writer_lname, '\">', w.writer_prefix, w.writer_fname, ' ', w.writer_lname, '</a>') 
+                    GROUP_CONCAT(DISTINCT CONCAT('<a href=\"?p=search&author_name=', w.writer_fname, ' ', w.writer_lname, '\">', w.writer_fname, ' ', w.writer_lname, '</a>') 
                     ORDER BY w.writer_main SEPARATOR ', ') AS writer_names,
                     GROUP_CONCAT(DISTINCT s.subject_name ORDER BY s.subject_name SEPARATOR ', ') AS subject_names,
                     co.file_name AS cover_name

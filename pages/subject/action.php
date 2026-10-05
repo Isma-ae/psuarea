@@ -4,18 +4,26 @@
 	include("../../php/functions.php");
     $fn = isset( $_POST["fn"] ) ? $_POST["fn"] : "";
     switch ($fn) {
-        case 'load_subject'	: echo load_subject(); 	break;
-        //case 'load_collection'	: echo load_collection(); 	break;
+        case 'load_community'	: echo load_community(); 	break;
+        case 'load_subject'	    : echo load_subject(); 	    break;
 		default: break;
 	}
+
+    function load_community() {
+        global $DATABASE;
+        $sql = "SELECT * FROM tb_community WHERE MD5(community_id) = '".$DATABASE->Escape($_POST["community_id"])."'";
+        $response = $DATABASE->QueryObj($sql);
+        return json_encode($response);
+    }
+
 
     function load_subject() {
         global $DATABASE;
         $limit = 10;
         $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
         $start = ($page - 1) * $limit;
-        $community_id = $_POST["community_id"];
-        $search_query = $_POST["search_query"];
+        $community_id = $DATABASE->Escape($_POST["community_id"]);
+        $search_query = $DATABASE->Escape($_POST["search_query"]);
         $search_query = $DATABASE->Escape($search_query);
         $search_filter = "WHERE 1=1";
         
@@ -33,7 +41,7 @@
                       $search_filter";
     
         $total_obj = $DATABASE->QueryObj($total_sql);
-        $total_data = $total_obj[0]["count_subject"] ?? 0;
+        $total_data = isset($total_obj[0]['count_subject']) ? $total_obj[0]['count_subject'] : 0;
         $total_pages = ($total_data > 0) ? ceil($total_data / $limit) : 1;
         $sql = "SELECT
                     COUNT(*) AS count_subject,

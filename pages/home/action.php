@@ -22,52 +22,39 @@
         $limit = 8;
         $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
         $start = ($page - 1) * $limit;
-        $query = "SELECT COUNT(*) AS total FROM tb_community";
-        $stmt = $DATABASE->Prepare($query);
-        $stmt->execute();
-        $stmt->store_result();
-        $stmt->bind_result($total_data);
-        $stmt->fetch();
-        $stmt->close();
-        $start_item = $start + 1;
-        $end_item = min($start + $limit, $total_data);
-        $query = "SELECT * FROM tb_community ORDER BY community_id DESC LIMIT ?, ?";
-        $stmt = $DATABASE->Prepare($query);
-        $params = [$start, $limit];
-        $stmt->bind_param("ii", ...$params);
-        $stmt->execute();
-        $result = $stmt->get_result();
-    
-        $data = [];
-        while ($row = $result->fetch_assoc()) {
-            $data[] = [
-                'community_id' => md5($row["community_id"]),
-                'community_title' => $row["community_title"],
-                'community_description' => $row["community_description"],
-                'community_img' => $row["community_img"]
-            ];
-        }
-        $stmt->close();
+
+        $total_sql = "SELECT COUNT(community_id) AS total FROM tb_community";
+        $total_obj = $DATABASE->QueryObj($total_sql);
+        $total_data = !empty($total_obj) ? $total_obj[0]['total'] : 0;
         $total_pages = ceil($total_data / $limit);
+        $sql = "SELECT MD5(community_id) AS community_id, community_title, community_description, community_img
+                FROM tb_community
+                LIMIT $start, $limit";
+    
+        $obj = $DATABASE->QueryObj($sql);
         $pagination_html = '<div align="center"><ul class="pagination">';
         if ($page > 1) {
             $pagination_html .= '<li class="page-item prev"><a class="page-link" href="#" data-page="' . ($page - 1) . '"><i class="ti-angle-left"></i></a></li>';
         } else {
             $pagination_html .= '<li class="page-item prev disabled"><a class="page-link" href="#"><i class="ti-angle-left"></i></a></li>';
         }
+    
         for ($count = 1; $count <= $total_pages; $count++) {
             $active = $count == $page ? ' active' : '';
             $pagination_html .= '<li class="page-item' . $active . '"><a class="page-link" href="#" data-page="' . $count . '">' . $count . '</a></li>';
         }
+    
         if ($page < $total_pages) {
             $pagination_html .= '<li class="page-item next"><a class="page-link" href="#" data-page="' . ($page + 1) . '"><i class="ti-angle-right"></i></a></li>';
         } else {
             $pagination_html .= '<li class="page-item next disabled"><a class="page-link" href="#"><i class="ti-angle-right"></i></a></li>';
         }
         $pagination_html .= '</ul></div>';
-        $pagination_info = "ตอนนี้กำลังแสดง $start_item - $end_item ของ $total_data";
+        $showing_from = ($start + 1);
+        $showing_to = ($start + count($obj));
+        $pagination_info = "Now showing $showing_from - $showing_to of $total_data";
         echo json_encode([
-            'data' => $data,
+            'data' => $obj,
             'pagination' => $pagination_html,
             'pagination_info' => $pagination_info
         ]);
@@ -82,7 +69,7 @@
             i.item_issued_year,
             i.item_publisher,
             i.item_abstract,
-            GROUP_CONCAT(DISTINCT CONCAT('<a href=\"?p=search&search_term=', w.writer_prefix, w.writer_fname, ' ', w.writer_lname, '\">', w.writer_prefix, w.writer_fname, ' ', w.writer_lname, '</a>') 
+            GROUP_CONCAT(DISTINCT CONCAT('<a href=\"?p=search&author_name=', w.writer_fname, ' ', w.writer_lname, '\">', w.writer_fname, ' ', w.writer_lname, '</a>') 
                 ORDER BY w.writer_fname SEPARATOR ', ') AS writer_names,
             f.file_name
         FROM tb_item AS i

@@ -1,5 +1,5 @@
 <?php
-    include("php/functions.php");
+    session_start();
     $page = isset($_GET['p']) ? $_GET['p']:'home';
 ?>
 <!DOCTYPE html>
@@ -26,6 +26,7 @@
 
     <script src="assets/js/jquery-1.12.1.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
+    <script src="languages/getLanguage.js"></script>
 
     <link rel="stylesheet" href="assets/jquery.auto-complete/jquery.auto-complete.css">
     <script src="assets/jquery.auto-complete/jquery.auto-complete.min.js"></script>

@@ -4,8 +4,9 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb my_breadcrumb">
-                <li class="breadcrumb-item"><a href="./">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">author</li>
+                <li class="breadcrumb-item"><a href="./" class="home">หน้าแรก</a></li>
+                <li class="breadcrumb-item collection_name" aria-current="page">Data</li>
+                <li class="breadcrumb-item authorLan active" aria-current="page">ผู้แต่ง</li>
             </ol>
         </nav>
     </div>
@@ -14,20 +15,14 @@
 <section class="cart_area">
     <div class="container">
         <div class="just-padding">
-            <?php
-                $sql = "SELECT * FROM tb_collection WHERE MD5(collection_id) = '".$_GET["collection"]."'";
-                $obj = $DATABASE->QueryObj($sql);
-            ?>
             <input type="hidden" id="collection_id" value="<?php echo $_GET["collection"];?>">
-            <h2 class="contact-title" id="collection_name"><?= $obj[0]["collection_name"];?></h2>
+            <h2 class="contact-title collection_name"></h2>
             <?php
                 if (isset($_GET["community"])) {
                     $link = '&community='.$_GET["community"];
-                    $sql = "SELECT * FROM tb_community WHERE MD5(community_id) = '".$_GET["community"]."'";
-                    $obj = $DATABASE->QueryObj($sql);
             ?>
             <input type="hidden" id="community_id" value="<?php echo $_GET["community"];?>">
-            <h4 id="community_title">ชุมชน : <?= $obj[0]["community_title"];?></h4>
+            <h4><strong class="community">ขอบเขตเนื้อหา </strong><span id="community"> : </span> </h4>
             <?php
                 } else {
                     $link = "";
@@ -37,35 +32,31 @@
                 }
             ?>
             <hr>
-            <h3>เรียกดู</h3>
+            <h3 class="show">เรียกดู</h3>
             <ul class="nav nav-pills nav-fill">
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link" href="?p=collections&collection=<?php echo $_GET["collection"].$link;?>">รายการล่าสุด</a>
+                    <a class="nav-link my-nav-link lastItem" href="?p=collections&collection=<?php echo $_GET["collection"].$link;?>">รายการล่าสุด</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link" href="?p=collection-date&collection=<?php echo $_GET["collection"].$link;?>">ตามวันที่ออก</a>
+                    <a class="nav-link my-nav-link year" href="?p=collection-date&collection=<?php echo $_GET["collection"].$link;?>">ปีที่เผยแพร่</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link active">โดยผู้เขียน</a>
+                    <a class="nav-link my-nav-link authorLan active">ผู้แต่ง</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=collection-title&collection=<?php echo $_GET["collection"].$link;?>">ตามชื่อเรื่อง</a>
+                    <a class="nav-link  my-nav-link titleLan" href="?p=collection-title&collection=<?php echo $_GET["collection"].$link;?>">ชื่อเรื่อง</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=collection-subject&collection=<?php echo $_GET["collection"].$link;?>">ตามหัวเรื่อง</a>
-                </li>
-                <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=srsc&collection=<?php echo $_GET["collection"].$link;?>">ตามหมวดหมู่หัวเรื่อง</a>
+                    <a class="nav-link  my-nav-link subLan" href="?p=collection-subject&collection=<?php echo $_GET["collection"].$link;?>">คำสำคัญ</a>
                 </li>
             </ul>
             <br>
             <div class="search_widget">
                 <div class="input-group mb-3 search_input">
-                    <input type="text" class="form-control" id="author_name" placeholder="กรองผลลัพธ์โดยพิมพ์ชื่อผู็เขียน..."
-                        onfocus="this.placeholder = ''"
-                        onblur="this.placeholder = 'กรองผลลัพธ์โดยพิมพ์ชื่อผู็เขียน...'">
+                    <input type="text" class="form-control authorPlace" id="author_name" placeholder="กรองผลลัพธ์โดยพิมพ์ชื่อผู้แต่ง..."
+                        onfocus="this.placeholder = ''">
                     <div class="input-group-append">
-                        <button class="btn" type="button" id="search-by-author"><i class="ti-book"></i> เรียกดู</button>
+                        <button class="btn showButton" type="button" id="search-by-author"><i class="ti-book"></i> เรียกดู</button>
                     </div>
                 </div>
             </div>

@@ -4,8 +4,9 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb my_breadcrumb">
-                <li class="breadcrumb-item"><a href="./">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">dateissued</li>
+                <li class="breadcrumb-item"><a href="./" class="home">หน้าแรก</a></li>
+                <li class="breadcrumb-item collection_name" aria-current="page">Data</li>
+                <li class="breadcrumb-item year active" aria-current="page">ปีที่เผยแพร่</li>
             </ol>
         </nav>
     </div>
@@ -14,20 +15,14 @@
 <section class="cart_area">
     <div class="container">
         <div class="just-padding">
-            <?php
-                $sql = "SELECT * FROM tb_collection WHERE MD5(collection_id) = '".$_GET["collection"]."'";
-                $obj = $DATABASE->QueryObj($sql);
-            ?>
             <input type="hidden" id="collection_id" value="<?php echo $_GET["collection"];?>">
-            <h2 class="contact-title" id="collection_name"><?= $obj[0]["collection_name"];?></h2>
+            <h2 class="contact-title collection_name"></h2>
             <?php
                 if (isset($_GET["community"])) {
                     $link = '&community='.$_GET["community"];
-                    $sql = "SELECT * FROM tb_community WHERE MD5(community_id) = '".$_GET["community"]."'";
-                    $obj = $DATABASE->QueryObj($sql);
             ?>
             <input type="hidden" id="community_id" value="<?php echo $_GET["community"];?>">
-            <h4 id="community_title">ชุมชน : <?= $obj[0]["community_title"];?></h4>
+            <h4><strong class="community">ขอบเขตเนื้อหา </strong><span id="community"> : </span> </h4>
             <?php
                 } else {
                     $link = "";
@@ -37,75 +32,47 @@
                 }
             ?>
             <hr>
-            <h3>เรียกดู</h3>
+            <h3 class="show">เรียกดู</h3>
             <ul class="nav nav-pills nav-fill">
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link" href="?p=collections&collection=<?php echo $_GET["collection"].$link;?>">รายการล่าสุด</a>
+                    <a class="nav-link my-nav-link lastItem" href="?p=collections&collection=<?php echo $_GET["collection"].$link;?>">รายการล่าสุด</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link active">ตามวันที่ออก</a>
+                    <a class="nav-link my-nav-link year active">ปีที่เผยแพร่</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link" href="?p=collection-author&collection=<?php echo $_GET["collection"].$link;?>">โดยผู้เขียน</a>
+                    <a class="nav-link my-nav-link authorLan" href="?p=collection-author&collection=<?php echo $_GET["collection"].$link;?>">ผู้แต่ง</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=collection-title&collection=<?php echo $_GET["collection"].$link;?>">ตามชื่อเรื่อง</a>
+                    <a class="nav-link  my-nav-link titleLan" href="?p=collection-title&collection=<?php echo $_GET["collection"].$link;?>">ชื่อเรื่อง</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=collection-subject&collection=<?php echo $_GET["collection"].$link;?>">ตามหัวเรื่อง</a>
-                </li>
-                <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=srsc&collection=<?php echo $_GET["collection"].$link;?>">ตามหมวดหมู่หัวเรื่อง</a>
+                    <a class="nav-link  my-nav-link subLan" href="?p=collection-subject&collection=<?php echo $_GET["collection"].$link;?>">คำสำคัญ</a>
                 </li>
             </ul>
             <br>
-            <h4>กรองผลลัพธ์ตามปีหรือเดือน</h4>
             <form class="form-contact contact_form" action="contact_process.php" method="post" id="contactForm"
                 novalidate="novalidate">
                 <div class="row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-5">
+                        <h4 class="since">ตั้งแต่ </h4>
                         <div class="form-group">
-                            <select class="shipping_select" id="item_issued_year">
-                                <option value=""> -- เลือกปี -- </option>
-                                <?php
-                                    $sql_year = "SELECT item_issued_year FROM tb_item GROUP BY item_issued_year ORDER BY item_issued_year DESC";
-                                    $obj_year = $DATABASE->QueryObj($sql_year);
-                                    foreach ($obj_year as $key_year => $year) {
-                                        echo '<option value="'.$year["item_issued_year"].'">'.$year["item_issued_year"].'</option>';
-                                    }
-                                ?>
+                            <select class="shipping_select" id="year_start">
+                                <option value="" class="selectYear"> -- เลือกปี -- </option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-5">
+                        <h4 class="to">ถึง </h4>
                         <div class="form-group">
-                            <select class="shipping_select" id="item_issued_month">
-                                <option value=""> -- เลือกเดือน -- </option>
-                                <?php
-                                    $monthsThai = [
-                                        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-                                        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-                                    ];
-                                    foreach ($monthsThai as $index => $month) {
-                                        echo '<option value="'.($index + 1).'">'.$month.'</option>';
-                                    }
-                                ?>
+                            <select class="shipping_select" id="year_end">
+                                <option value="" class="selectYear"> -- เลือกปี -- </option>
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="form-group">
-                            <div class="search_widget">
-                                <div class="input-group mb-3 search_input">
-                                    <input type="text" class="form-control" id="item_issued_day" placeholder="กรองผลลัพธ์ตามวันที่..."
-                                        onfocus="this.placeholder = ''"
-                                        onblur="this.placeholder = 'กรองผลลัพธ์ตามวันที่...'">
-                                    <div class="input-group-append">
-                                        <button class="btn" type="button" id="search-by-date"><i class="ti-book"></i> เรียกดู</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-sm-2">
+                        <br><br>
+                        <button class="btn btn-primary btn-block showButton" id="search-by-date" type="button"><i class="ti-book"></i> เรียกดู</button>
                     </div>
                 </div>
             </form>

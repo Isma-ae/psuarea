@@ -5,7 +5,7 @@
 <div class="container">
     <div class="search_widget">
         <div class="input-group mb-3 search_input">
-            <input type="text" class="form-control" placeholder="ค้นหาพื้นที่เก็บข้อมูล..." id="serch-input" onfocus="this.placeholder = ''" onblur="this.placeholder = 'ค้นหาพื้นที่เก็บข้อมูล...'">
+            <input type="text" class="form-control searchPlace" placeholder="ค้นหาจากชื่อเรื่อง ชื่อผู้แต่ง และคำสำคัญ" id="serch-input" onfocus="this.placeholder = ''">
             <div class="input-group-append">
                 <button class="btn" type="button" id="search"><i class="ti-search"></i></button>
             </div>
@@ -15,15 +15,14 @@
 <section class="feature_part my_section_padding">
     <div class="container">
         <div class="my_single_feature_part">
-            <h4>Credit Card Support</h4>
+            <h4>Wellcome</h4>
         </div>
     </div>
 </section>
 
 <section class="blog_area my_section_padding2">
     <div class="container">
-        <h2 class="contact-title">เลือกชุมชนเพื่อเรียกดูคอลเลคชัน</h2>
-        <p>เลือกชุมชนเพื่อเรียกดูคอลเลคชัน</p>
+        <h2 class="contact-title chooseComm">เลือกขอบเขตเนื้อหา</h2>
         <p id="pagination_info"></p>
         <div class="blog_left_sidebar">
             <div class="row community_data">
@@ -37,8 +36,8 @@
 
 <section class="blog_area my_section_padding2">
     <div class="container">
-        <h2 class="contact-title">ผลงานล่าสุด</h2>
+        <h2 class="contact-title lastItem">รายการล่าสุด</h2>
         <div id="item-data"></div>
-        <a href="?p=search" class="genric-btn primary-border">โหลดเพิ่ม</a>
+        <a href="?p=search" class="genric-btn primary-border viewAll">ดูทั้งหมด</a>
     </div>
 </section>

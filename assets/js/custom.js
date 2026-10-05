@@ -205,74 +205,74 @@
     $("#seconds").html("<span>Seconds</span>" + seconds);
 
   }
-// click counter js
-(function() {
- 
-  window.inputNumber = function(el) {
+  // click counter js
+  (function () {
 
-    var min = el.attr('min') || false;
-    var max = el.attr('max') || false;
+    window.inputNumber = function (el) {
 
-    var els = {};
+      var min = el.attr('min') || false;
+      var max = el.attr('max') || false;
 
-    els.dec = el.prev();
-    els.inc = el.next();
+      var els = {};
 
-    el.each(function() {
-      init($(this));
-    });
+      els.dec = el.prev();
+      els.inc = el.next();
 
-    function init(el) {
+      el.each(function () {
+        init($(this));
+      });
 
-      els.dec.on('click', decrement);
-      els.inc.on('click', increment);
+      function init(el) {
 
-      function decrement() {
-        var value = el[0].value;
-        value--;
-        if(!min || value >= min) {
-          el[0].value = value;
+        els.dec.on('click', decrement);
+        els.inc.on('click', increment);
+
+        function decrement() {
+          var value = el[0].value;
+          value--;
+          if (!min || value >= min) {
+            el[0].value = value;
+          }
         }
-      }
 
-      function increment() {
-        var value = el[0].value;
-        value++;
-        if(!max || value <= max) {
-          el[0].value = value++;
+        function increment() {
+          var value = el[0].value;
+          value++;
+          if (!max || value <= max) {
+            el[0].value = value++;
+          }
         }
       }
     }
-  }
-})();
+  })();
 
-inputNumber($('.input-number'));
+  inputNumber($('.input-number'));
 
 
 
   setInterval(function () {
     makeTimer();
   }, 1000);
- 
 
- $('.select_option_dropdown').hide();
- $(".select_option_list").click(function () {
-   $(this).parent(".select_option").children(".select_option_dropdown").slideToggle('100');
-   $(this).find(".right").toggleClass("fas fa-caret-down, fas fa-caret-up");
- });
 
- if ($('.new_arrival_iner').length > 0) {
-  var containerEl = document.querySelector('.new_arrival_iner');
-  var mixer = mixitup(containerEl);
- }
-//  $('.controls').on('click', function(){
-//   $('.controls').removeClass('add');
-//   $('.controls').addClass('add');
-//  });
+  $('.select_option_dropdown').hide();
+  $(".select_option_list").click(function () {
+    $(this).parent(".select_option").children(".select_option_dropdown").slideToggle('100');
+    $(this).find(".right").toggleClass("fas fa-caret-down, fas fa-caret-up");
+  });
 
- $('.controls').on('click', function(){
-  $(this).addClass('active').siblings().removeClass('active');
- }); 
+  if ($('.new_arrival_iner').length > 0) {
+    var containerEl = document.querySelector('.new_arrival_iner');
+    var mixer = mixitup(containerEl);
+  }
+  //  $('.controls').on('click', function(){
+  //   $('.controls').removeClass('add');
+  //   $('.controls').addClass('add');
+  //  });
+
+  $('.controls').on('click', function () {
+    $(this).addClass('active').siblings().removeClass('active');
+  });
 
 
 }(jQuery));

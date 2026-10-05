@@ -109,7 +109,6 @@
             'community_id' => $_POST["community_id"],
             'collection_id' => $_POST["collection_id"],
             'item_alternative' => $_POST["item_alternative"],
-            'item_issued_day' => $_POST["item_issued_day"],
             'item_issued_month' => $_POST["item_issued_month"],
             'item_issued_year' => $_POST["item_issued_year"],
             'item_description' => $_POST["item_description"],
@@ -117,23 +116,20 @@
             'item_sponsorship' => $_POST["item_sponsorship"],
             'item_citation' => $_POST["item_citation"],
             'item_uri' => $_POST["item_uri"],
-            'item_publisher' => $_POST["item_publisher"],
-            'type_id' => $_POST["type_id"]
+            'item_publisher' => $_POST["item_publisher"]
         ], "item_id = '".$item_id."'");
         if ($update) {
             if (!empty($_POST['writer_id'])) {
                 $writer_ids = $_POST['writer_id'];
-                $writer_prefixs = $_POST['writer_prefix'];
                 $writer_fnames = $_POST['writer_fname'];
                 $writer_lnames = $_POST['writer_lname'];
                 $writer_mains = $_POST['writer_main'];
                 foreach ($writer_fnames as $index => $writer_fname) {
-                    if (!isset($writer_prefixs[$index], $writer_lnames[$index])) {
+                    if (!isset( $writer_lnames[$index])) {
                         continue;
                     }
                     $writer_main = isset($writer_mains[$index]) ? $writer_mains[$index] : 2;
                     $DATABASE->QueryUpdate("tb_writer", [
-                        'writer_prefix' => $writer_prefixs[$index],
                         'writer_fname' => $writer_fname,
                         'writer_lname' => $writer_lnames[$index],
                         'writer_main' => $writer_main
@@ -144,7 +140,7 @@
                 $edit_prefixs = $_POST['edit_prefix'];
                 $edit_fnames = $_POST['edit_fname'];
                 $edit_lnames = $_POST['edit_lname'];
-                $edit_mains = $_POST['edit_main'] ?? [];
+                $edit_mains = isset($_POST['edit_main']) ? $_POST['edit_main'] : [];
                 foreach ($edit_fnames as $i => $edit_fname) {
                     $writer_ids = $DATABASE->QueryMaxId("tb_writer","writer_id",'WRT',11);
                     if (!isset($edit_prefixs[$i], $edit_lnames[$i])) {

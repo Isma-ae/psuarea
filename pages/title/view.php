@@ -4,8 +4,8 @@
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb my_breadcrumb">
-                <li class="breadcrumb-item"><a href="./">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">title</li>
+                <li class="breadcrumb-item"><a href="./" class="home">หน้าแรก</a></li>
+                <li class="breadcrumb-item active titleLan" aria-current="page">ชื่อเรื่อง</li>
             </ol>
         </nav>
     </div>
@@ -18,46 +18,40 @@
                 if (!isset($_GET["community"])) {
             ?>
             <input type="hidden" id="community_id" value="">
-            <h2 class="contact-title">กำลังเรียกดู โดย ชื่อ</h2>
+            <h2 class="contact-title showByTitle">กำลังเรียกดู โดย ชื่อเรื่อง</h2>
             <?php
                 } else {
-                    $sql = "SELECT * FROM tb_community WHERE MD5(community_id) = '".$_GET["community"]."'";
-                    $obj = $DATABASE->QueryObj($sql);
             ?>
             <input type="hidden" id="community_id" value="<?php echo $_GET["community"];?>">
-            <h2 class="contact-title" id="community_title"><?= $obj[0]["community_title"];?></h2>
-            <div id="community_img"><img src="files/community/<?= $obj[0]["community_img"];?>" width="25%"></div>
+            <h2 class="contact-title" id="title"></h2>
+            <div id="img"></div>
             <hr>
-            <h3>เรียกดู</h3>
+            <h3 class="show">เรียกดู</h3>
             <ul class="nav nav-pills nav-fill">
-                <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link" href="?p=communities&community=<?php echo $_GET["community"];?>">ชุมชนย่อยและคอลเลคชัน</a>
+            <li class="nav-item my-nav-item">
+                    <a class="nav-link my-nav-link collection" href="?p=communities&community=<?php echo $_GET["community"];?>">คอลเล็กชัน</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link"  href="?p=dateissued&community=<?php echo $_GET["community"];?>">ตามวันที่ออก</a>
+                    <a class="nav-link my-nav-link year" href="?p=dateissued&community=<?php echo $_GET["community"];?>">ปีที่เผยแพร่</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link my-nav-link" href="?p=author&community=<?php echo $_GET["community"];?>">โดยผู้เขียน</a>
+                    <a class="nav-link my-nav-link authorLan" href="?p=author&community=<?php echo $_GET["community"];?>">ผู้แต่ง</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link active">ตามชื่อเรื่อง</a>
+                    <a class="nav-link  my-nav-link titleLan active">ชื่อเรื่อง</a>
                 </li>
                 <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=subject&community=<?php echo $_GET["community"];?>">ตามหัวเรื่อง</a>
-                </li>
-                <li class="nav-item my-nav-item">
-                    <a class="nav-link  my-nav-link" href="?p=srsc&community=<?php echo $_GET["community"];?>">ตามหมวดหมู่หัวเรื่อง</a>
+                    <a class="nav-link  my-nav-link subLan" href="?p=subject&community=<?php echo $_GET["community"];?>">คำสำคัญ</a>
                 </li>
             </ul>
             <br>
             <?php }?>
             <div class="search_widget">
                 <div class="input-group mb-3 search_input">
-                    <input type="text" class="form-control" id="item_title" placeholder="กรองผลลัพธ์โดยพิมพ์ชื่อเรื่อง..."
-                        onfocus="this.placeholder = ''"
-                        onblur="this.placeholder = 'กรองผลลัพธ์โดยพิมพ์ชื่อเรื่อง...'">
+                    <input type="text" class="form-control titlePlace" id="item_title" placeholder="กรองผลลัพธ์โดยพิมพ์ชื่อเรื่อง..."
+                        onfocus="this.placeholder = ''">
                     <div class="input-group-append">
-                        <button class="btn" type="button" id="search-by-title"><i class="ti-book"></i> เรียกดู</button>
+                        <button class="btn showButton" type="button" id="search-by-title"><i class="ti-book"></i> เรียกดู</button>
                     </div>
                 </div>
             </div>

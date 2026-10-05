@@ -1,9 +1,9 @@
 <?php
 //$PROJECT_ROOT = "Physicssci-tech";
 /*$HOST = "localhost";
-$USER = "spam";
-$PASS = "**123spam321**";
-$DBNAME = "spam";*/
+$USER = "psuarea";
+$PASS = "**123psuarea321**";
+$DBNAME = "psuarea";*/
 
 	/*$PROJECT_ROOT = "Physicssci-tech";*/
 	$HOST = "localhost";

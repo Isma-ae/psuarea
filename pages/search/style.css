@@ -69,6 +69,10 @@
     color: #888888;
 }
 
+#pagination_link {
+    margin-bottom: 120px;
+}
+
 .shipping_select {
     display: block;
     width: 100%;

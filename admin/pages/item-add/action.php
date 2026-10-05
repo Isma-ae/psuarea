@@ -37,8 +37,8 @@
 
     function add_item() {
         global $DATABASE;
-        if ($_POST["community_id"] == 0) {
-            echo json_encode([
+        if ($_POST["community_id"] == '0') {
+            return json_encode([
                 "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
                 "message"=>"กรุณาเลือกชุมชน",
@@ -46,8 +46,8 @@
             ]);
             exit();
         }
-        if ($_POST["collection_id"] == 0) {
-            echo json_encode([
+        if ($_POST["collection_id"] == '0') {
+            return json_encode([
                 "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
                 "message"=>"กรุณาเลือกคอลเลกชัน",
@@ -69,16 +69,13 @@
             'community_id' => $_POST["community_id"],
             'collection_id' => $_POST["collection_id"],
             'item_alternative' => $_POST["item_alternative"],
-            'item_issued_day' => $_POST["item_issued_day"],
             'item_issued_month' => $_POST["item_issued_month"],
             'item_issued_year' => $_POST["item_issued_year"],
-            'item_description' => $_POST["item_description"],
             'item_abstract' => $_POST["item_abstract"],
             'item_sponsorship' => $_POST["item_sponsorship"],
             'item_citation' => $_POST["item_citation"],
             'item_uri' => $_POST["item_uri"],
-            'item_publisher' => $_POST["item_publisher"],
-            'type_id' => $_POST["type_id"]
+            'item_publisher' => $_POST["item_publisher"]
         ]);
         if ($insert) {
             if ($file_name != "") {
@@ -90,19 +87,17 @@
                     'item_id' => $item_id
                 ]);
             }
-            $writer_prefixs = $_POST['writer_prefix'];
             $writer_fnames = $_POST['writer_fname'];
             $writer_lnames = $_POST['writer_lname'];
             $writer_mains = $_POST['writer_main'];
             foreach ($writer_fnames as $index => $writer_fname) {
                 $writer_id = $DATABASE->QueryMaxId("tb_writer","writer_id",'WRT',11);
-                if (!isset($writer_prefixs[$index], $writer_lnames[$index])) {
+                if (!isset($writer_lnames[$index])) {
                     continue;
                 }
                 $writer_main = isset($writer_mains[$index]) ? $writer_mains[$index] : 2;
                 $DATABASE->QueryInsert('tb_writer',[
                     'writer_id' => $writer_id,
-                    'writer_prefix' => $writer_prefixs[$index],
                     'writer_fname' => $writer_fname,
                     'writer_lname' => $writer_lnames[$index],
                     'item_id' => $item_id,

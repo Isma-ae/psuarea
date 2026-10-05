@@ -25,9 +25,12 @@
                         <h4 class="card-title">รายการ</h4>
                         <div class="ml-auto">
                             <div class="dropdown sub-dropdown">
+                                <a class="btn btn-info" href="pages/item-list/export.php">
+                                    Export
+                                </a>
                                 <a class="btn btn-success" href="?p=item-add">
                                     เพิ่มรายการ
-</a>
+                                </a>
                             </div>
                         </div>
                     </div>

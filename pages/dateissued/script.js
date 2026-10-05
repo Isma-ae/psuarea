@@ -1,12 +1,51 @@
 $(document).ready(function () {
+
+    load_community()
+
+    function load_community() {
+        var community_id = $('#community_id').val();
+        if (community_id != "") {
+            $.post("pages/dateissued/action.php", {
+                    fn: "load_community",
+                    community_id: community_id
+                },
+                function (data) {
+                    $('#title').html(data[0].community_title);
+                    $('.community_title').after('<li class="breadcrumb-item active"><a href="?p=communities&community=' + community_id + '">' + data[0].community_title + '</a></li>');
+                    $('#img').html('<img src="files/community/' + data[0].community_img + '" width="25%">');
+                },
+                "json"
+            );
+        }
+    }
+
+    load_year()
+
+    function load_year() {
+        if (community_id != "") {
+            $.post("pages/dateissued/action.php", {
+                    fn: "load_year",
+                },
+                function (data) {
+                    $.each(data, function (index, value) {
+                        var html = '<option value="' + value.item_issued_year + '">' + value.item_issued_year + '</option>'
+                        $('#year_start,#year_end').append(html);
+                    });
+                    $('#year_start, #year_end').niceSelect('update');
+                },
+                "json"
+            );
+        }
+    }
+
     load_data(1);
 
     function load_data(page_number) {
         var form_data = new FormData();
+        form_data.append('fn', 'load_item');
         form_data.append('community_id', $('#community_id').val());
-        form_data.append('item_issued_year', $('#item_issued_year').val());
-        form_data.append('item_issued_month', $('#item_issued_month').val());
-        form_data.append('item_issued_day', $('#item_issued_day').val());
+        form_data.append('year_start', $('#year_start').val());
+        form_data.append('year_end', $('#year_end').val());
         form_data.append('page', page_number);
 
         $.ajax({
@@ -27,7 +66,7 @@ $(document).ready(function () {
                         html += '<div class="col-2"><a href="?p=item&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
                         html += '<div class="col-10">';
                         html += '<span class="badge badge-primary">รายการ</span>';
-                        html += '<a href="?p=item&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
+                        html += '<a href="?p=items&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
                         html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
                         html += '<p>' + post.item_abstract + '</p>';
                         html += '</div>';
@@ -66,12 +105,6 @@ $(document).ready(function () {
             load_data(current_page + 1);
         }
     });
-
-    $('#item_issued_year,#item_issued_month').change(function (e) {
-        e.preventDefault();
-        load_data(1);
-    });
-
     $('#search-by-date').click(function (e) {
         e.preventDefault();
         load_data(1);

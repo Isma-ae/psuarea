@@ -16,7 +16,7 @@ $(function () {
                 if (response.title == 't') {
                     location.reload();
                 } else {
-                    Swal.fire(res.title, res.message, res.icon);
+                    Swal.fire(response.title, response.message, response.icon);
                 }
             }
         });

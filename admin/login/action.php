@@ -46,7 +46,8 @@
     function logout()
 	{
 		session_destroy();
-		echo "true";
+		$reponse = 't';
+		echo json_encode($reponse);
 	}
 
 

@@ -39,8 +39,7 @@
                 $condition = str_replace(" ", "%", $condition);
                 $search_query = " WHERE collection_name LIKE ?";
                 $params[] = "%$condition%";
-                $params[] = "%$condition%";
-                $types .= "ss";
+                $types .= "s";
             }
             $stmt = $DATABASE->Prepare($query . $search_query);
             if ($stmt) {
@@ -66,7 +65,9 @@
         
                 $data = [];
                 $replace_array_1 = explode('%', $condition);
-                $replace_array_2 = array_map(fn($word) => "<span style='background-color:#" . rand(100000, 999999) . "; color:#fff'>$word</span>", $replace_array_1);
+                $replace_array_2 = array_map(function($word) {
+                    return "<span style='background-color:#" . rand(100000, 999999) . "; color:#fff'>$word</span>";
+                }, $replace_array_1);
         
                 while ($row = $result->fetch_assoc()) {
                     $data[] = [

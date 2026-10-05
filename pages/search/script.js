@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
     //------------------ ผู้เขียน -----------------//
-    let limit_authur = 1;
+    let limit_authur = 5;
     let offset_author = 0;
 
     $('#collapse').hide();
@@ -9,6 +9,7 @@ $(document).ready(function () {
     load_authur();
 
     function load_authur() {
+        var author_in_param = $('#author_in_param').val();
         $.ajax({
             type: "post",
             url: "pages/search/action.php",
@@ -16,6 +17,7 @@ $(document).ready(function () {
                 fn: "load_authur",
                 limit: limit_authur,
                 offset: offset_author,
+                author_in_param: author_in_param
             },
             success: function (res) {
                 var data = JSON.parse(res);
@@ -24,12 +26,12 @@ $(document).ready(function () {
                         var html = '';
                         var i = Math.random() * 1000000;
                         html += '<p data-type="authur">';
-                        html += '<input type="checkbox" id="f-option' + (i) + '" name="author[]" style="width:20%;" value="' + value.writer_prefix + '' + value.writer_fname + ' ' + value.writer_lname + '" class="my-check">';
-                        html += '<label for="f-option' + (i) + '">' + value.writer_prefix + '' + value.writer_fname + ' ' + value.writer_lname + '</label>';
+                        html += '<input type="checkbox" id="f-option' + (i) + '" name="author[]" style="width:20%;" value="' + value.writer_fname + ' ' + value.writer_lname + '" class="my-check">';
+                        html += '<label for="f-option' + (i) + '">' + value.writer_fname + ' ' + value.writer_lname + ' <span class="badge badge-secondary">' + value.count_author + '</span></label>';
                         html += '</p>';
                         $("#authur-data").append(html);
                     });
-                    offset_author += 1;
+                    offset_author += 5;
                 } else {
                     $("#showMore").hide();
                 }
@@ -44,7 +46,7 @@ $(document).ready(function () {
     });
 
     $("#collapse").click(function () {
-        limit_authur = 1;
+        limit_authur = 5;
         offset_author = 0;
         $("#authur-data").empty();
         load_authur();
@@ -66,12 +68,12 @@ $(document).ready(function () {
         renderItem: function (item, search) {
             var $tmp = $('<div><div class="autocomplete-suggestion"></div></div>');
             $tmp.find(".autocomplete-suggestion").attr("data-item", JSON.stringify(item));
-            $tmp.find(".autocomplete-suggestion").html(item.writer_fname + ' ' + item.writer_lname);
+            $tmp.find(".autocomplete-suggestion").html(item.writer_fname + ' ' + item.writer_lname + '<span class="badge badge-secondary">' + item.count_author + '</span>');
             return $tmp.html();
         },
         onSelect: function (e, term, item) {
             var value = item.data("item");
-            var fullname = value.writer_prefix + '' + value.writer_fname + ' ' + value.writer_lname;
+            var fullname = value.writer_fname + ' ' + value.writer_lname;
             var is_duplicate = false;
             $.each($("[name^=author]"), function (i, v) {
                 var x = $(this).val();
@@ -82,13 +84,14 @@ $(document).ready(function () {
             });
             if (is_duplicate) {
                 $("[name^='author'][value='" + fullname + "']").prop("checked", true);
+                load_data(searchQuery, 1);
                 return;
             }
             var html = '';
             var i = Math.random() * 1000000;
             html += '<p data-type="authur">';
             html += '<input checked type="checkbox" id="f-option' + (i) + '" name="author[]" style="width:20%;" value="' + fullname + '" class="my-check">';
-            html += '<label for="f-option' + (i) + '">' + fullname + '</label>';
+            html += '<label for="f-option' + (i) + '">' + fullname + ' <span class="badge badge-secondary">' + value.count_author + '</span></label>';
             html += '</p>';
             $("#authur-data").prepend(html);
             load_data(searchQuery, 1);
@@ -105,20 +108,22 @@ $(document).ready(function () {
     //------------------ จบผู้เขียน -----------------//
     //-------------------- เรื่อง -------------------//
 
-    let limit_subject = 1;
+    let limit_subject = 5;
     let offset_subject = 0;
     $('#collapse2').hide();
 
     load_subject();
 
     function load_subject() {
+        var subject_in_param = $('#subject_in_param').val();
         $.ajax({
             type: "post",
             url: "pages/search/action.php",
             data: {
                 fn: "load_subject",
                 offset: offset_subject,
-                limit: limit_subject
+                limit: limit_subject,
+                subject_in_param: subject_in_param
             },
             success: function (res) {
                 var data = JSON.parse(res);
@@ -128,11 +133,11 @@ $(document).ready(function () {
                         var i = Math.random() * 1000000;
                         html += '<p data-type="subject">';
                         html += '<input type="checkbox" id="subject_name' + i + '" name="subject_name[]" style="width:20%;" value="' + value.subject_name + '" class="my-check">';
-                        html += '<label for="subject_name' + i + '">' + value.subject_name + '</label>';
+                        html += '<label for="subject_name' + i + '">' + value.subject_name + ' <span class="badge badge-secondary">' + value.count_subject + '</span></label>';
                         html += '</p>';
                         $("#subject-data").append(html);
                     });
-                    offset_subject += 1;
+                    offset_subject += 5;
                 } else {
                     $("#showMore2").hide();
                 }
@@ -146,7 +151,7 @@ $(document).ready(function () {
     });
 
     $("#collapse2").click(function () {
-        limit_subject = 1;
+        limit_subject = 5;
         offset_subject = 0;
         $("#subject-data").empty();
         load_subject();
@@ -168,7 +173,7 @@ $(document).ready(function () {
         renderItem: function (item, search) {
             var $tmp = $('<div><div class="autocomplete-suggestion"></div></div>');
             $tmp.find(".autocomplete-suggestion").attr("data-item", JSON.stringify(item));
-            $tmp.find(".autocomplete-suggestion").html(item.subject_name);
+            $tmp.find(".autocomplete-suggestion").html(item.subject_name + ' <span class="badge badge-secondary">' + item.count_subject + '</span>');
             return $tmp.html();
         },
         onSelect: function (e, term, item) {
@@ -184,13 +189,14 @@ $(document).ready(function () {
             });
             if (is_duplicate) {
                 $("[name^='author'][value='" + subject + "']").prop("checked", true);
+                load_data(searchQuery, 1);
                 return;
             }
             var html = '';
             var i = Math.random() * 1000000;
             html += '<p data-type="subject">';
             html += '<input checked type="checkbox" id="subject_name' + (i) + '" name="subject_name[]" style="width:20%;" value="' + subject + '" class="my-check">';
-            html += '<label for="subject_name' + (i) + '">' + subject + '</label>';
+            html += '<label for="subject_name' + (i) + '">' + subject + ' <span class="badge badge-secondary">' + value.count_subject + '</span></label>';
             html += '</p>';
             $("#subject-data").prepend(html);
             load_data(searchQuery, 1);
@@ -329,10 +335,10 @@ $(document).ready(function () {
                             '<img src="files/item/' + post.item_id + '/' + post.cover_name + '" alt="Cover Image">' :
                             '<img src="img/930231.png" alt="No Cover">';
                         html += '<div class="blog-author row my-blog" style="margin-bottom:20px;">';
-                        html += '<div class="col-2"><a href="?p=item&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
+                        html += '<div class="col-2"><a href="?p=items&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
                         html += '<div class="col-10">';
                         html += '<span class="badge badge-primary">รายการ</span>';
-                        html += '<a href="?p=item&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
+                        html += '<a href="?p=items&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
                         html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
                         html += '<p>' + post.item_abstract + '</p>';
                         html += '</div>';

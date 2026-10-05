@@ -19,33 +19,40 @@
                         <span class="hide-menu">ข้อมูลหน้าแรก </span>
                     </a>
                 </li>
-                <li class="sidebar-item <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add")?'selected':"").'';?>">
-                    <a class="sidebar-link has-arrow <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add")?'active':"").'';?>" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'selected':"").'';?>">
+                    <a class="sidebar-link has-arrow <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'active':"").'';?>" href="javascript:void(0)" aria-expanded="false">
                         <i data-feather="file-text" class="feather-icon"></i>
                         <span class="hide-menu">ชุมชน </span>
                     </a>
-                    <ul aria-expanded="false" class="collapse  first-level base-level-line <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add")?'in':"").'';?>">
+                    <ul aria-expanded="false" class="collapse  first-level base-level-line <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'in':"").'';?>">
                         <li class="sidebar-item <?php echo ''.(($page=="community")?'active':"").'';?>">
                             <a href="?p=community" class="sidebar-link <?php echo ''.(($page=="community")?'active':"").'';?>">
-                                <span class="hide-menu"> ชุมชน</span>
+                                <span class="hide-menu"> ขอบเขตเนื้อหา</span>
                             </a>
                         </li>
                         <li class="sidebar-item <?php echo ''.(($page=="collection")?'active':"").'';?>">
                             <a href="?p=collection" class="sidebar-link <?php echo ''.(($page=="collection")?'active':"").'';?>">
-                                <span class="hide-menu"> คอลเลกชัน </span>
+                                <span class="hide-menu"> คอลเล็กชัน </span>
                             </a>
                         </li>
-                        <li class="sidebar-item <?php echo ''.(($page=="item-list" || $page=="item-add")?'active':"").'';?>">
-                            <a href="?p=item-list" class="sidebar-link <?php echo ''.(($page=="item-list" || $page=="item-add")?'active':"").'';?>">
+                        <li class="sidebar-item <?php echo ''.(($page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'active':"").'';?>">
+                            <a href="?p=item-list" class="sidebar-link <?php echo ''.(($page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'active':"").'';?>">
                                 <span class="hide-menu"> รายการ </span>
                             </a>
                         </li>
                     </ul>
                 </li>
-                <li class="sidebar-item"> <a class="sidebar-link sidebar-link" href="ui-cards.html"
-                        aria-expanded="false"><i data-feather="sidebar" class="feather-icon"></i><span
-                            class="hide-menu">Cards
-                        </span></a>
+                <!--<li class="sidebar-item">
+                    <a class="sidebar-link sidebar-link <?php echo ''.(($page=="type")?'active':"").'';?>" href="?p=type" aria-expanded="false">
+                        <i data-feather="book" class="feather-icon"></i>
+                        <span class="hide-menu">หมวดหมู่</span>
+                    </a>
+                </li>-->
+                <li class="sidebar-item">
+                    <a class="sidebar-link sidebar-link <?php echo ''.(($page=="user")?'active':"").'';?>" href="?p=user" aria-expanded="false">
+                        <i data-feather="user-plus" class="feather-icon"></i>
+                        <span class="hide-menu">ผู้ดูแลระบบ</span>
+                    </a>
                 </li>
             </ul>
         </nav>

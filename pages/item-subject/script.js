@@ -1,8 +1,28 @@
 $(document).ready(function () {
+
+    load_community()
+
+    function load_community() {
+        var community_id = $('#community_id').val();
+        if (community_id != "") {
+            $.post("pages/item-subject/action.php", {
+                    fn: "load_community",
+                    community_id: community_id
+                },
+                function (data) {
+                    $('#title').html(data[0].community_title);
+                    $('#img').html('<img src="files/community/' + data[0].community_img + '" width="25%">');
+                },
+                "json"
+            );
+        }
+    }
+
     load_data(1);
 
     function load_data(page_number) {
         var form_data = new FormData();
+        form_data.append('fn', 'load_item');
         form_data.append('community_id', $('#community_id').val());
         form_data.append('subject_name', $('#subject_name').val());
         form_data.append('page', page_number);
@@ -22,10 +42,10 @@ $(document).ready(function () {
                             '<img src="files/item/' + post.item_id + '/' + post.cover_name + '" alt="Cover Image">' :
                             '<img src="img/930231.png" alt="No Cover">';
                         html += '<div class="blog-author row my-blog" style="margin-bottom:20px;">';
-                        html += '<div class="col-2"><a href="?p=item&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
+                        html += '<div class="col-2"><a href="?p=items&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
                         html += '<div class="col-10">';
                         html += '<span class="badge badge-primary">รายการ</span>';
-                        html += '<a href="?p=item&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
+                        html += '<a href="?p=items&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
                         html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
                         html += '<p>' + post.item_abstract + '</p>';
                         html += '</div>';

@@ -49,7 +49,7 @@ $(function () {
                         html += '<a class="d-inline-block" href="?p=communities&community=' + post.community_id + '"><img class="card-img rounded-0" src="files/community/' + post.community_img + '?t=' + new Date().getTime() + '" alt=""></a>';
                         html += '</div>';
                         html += '<div class="blog_details">';
-                        html += '<a class="d-inline-block" href="single-blog.html">';
+                        html += '<a class="d-inline-block" href="?p=communities&community=' + post.community_id + '">';
                         html += '<h4>' + post.community_title + '</h4>';
                         html += '</a>';
                         html += '<p>' + post.community_description + '</p>';
@@ -63,30 +63,32 @@ $(function () {
                 $('.community_data').html(html);
                 $('#pagination_link').html(data.pagination);
                 $('#pagination_info').text(data.pagination_info);
-                $('#pagination_link .page-link').on('click', function (e) {
-                    e.preventDefault();
-                    var page_number = $(this).data('page');
-                    load_item(page_number);
-                });
-                $('#pagination_link .prev').on('click', function (e) {
-                    e.preventDefault();
-                    var current_page = parseInt($('#pagination_link .active .page-link').data('page')) || 1;
-                    if (current_page > 1) {
-                        load_item(current_page - 1);
-                    }
-                });
-
-                $('#pagination_link .next').on('click', function (e) {
-                    e.preventDefault();
-                    var current_page = parseInt($('#pagination_link .active .page-link').data('page')) || 1;
-                    var total_pages = data.total_pages || 1;
-                    if (load_item < total_pages) {
-                        load_data(current_page + 1);
-                    }
-                });
+                window.total_pages = data.total_pages;
             }
         });
     }
+
+    $(document).on('click', '#pagination_link .page-link', function (e) {
+        e.preventDefault();
+        var page_number = $(this).data('page');
+        load_community(page_number);
+    });
+
+    $(document).on('click', '#pagination_link .prev', function (e) {
+        e.preventDefault();
+        var current_page = parseInt($('#pagination_link .active .page-link').data('page')) || 1;
+        if (current_page > 1) {
+            load_community(current_page - 1);
+        }
+    });
+
+    $(document).on('click', '#pagination_link .next', function (e) {
+        e.preventDefault();
+        var current_page = parseInt($('#pagination_link .active .page-link').data('page')) || 1;
+        if (current_page < window.total_pages) {
+            load_community(current_page + 1);
+        }
+    });
 
     load_item();
 
@@ -111,7 +113,7 @@ $(function () {
                         html += '<div class="blog-author row my-blog" style="margin-bottom:20px;">';
                         html += '<div class="col-2"><a href="?p=item&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
                         html += '<div class="col-10">';
-                        html += '<span class="badge badge-primary">รายการ</span>';
+                        html += '<span class="badge badge-primary item">รายการ</span>';
                         html += '<a href="?p=items&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
                         html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
                         html += '<p>' + post.item_abstract + '</p>';

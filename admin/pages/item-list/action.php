@@ -31,7 +31,7 @@
                     i.item_id, 
                     i.item_title, 
                     i.item_issued_year,
-                    GROUP_CONCAT(DISTINCT CONCAT(w.writer_prefix, ' ', w.writer_fname, ' ', w.writer_lname) 
+                    GROUP_CONCAT(DISTINCT CONCAT(w.writer_fname, ' ', w.writer_lname) 
                         ORDER BY w.writer_fname SEPARATOR ', ') AS writer_names
                 FROM tb_item AS i
                 LEFT JOIN tb_writer AS w ON i.item_id = w.item_id
@@ -81,7 +81,9 @@
         
                 $data = [];
                 $replace_array_1 = explode('%', $condition);
-                $replace_array_2 = array_map(fn($word) => "<span style='background-color:#" . rand(100000, 999999) . "; color:#fff'>$word</span>", $replace_array_1);
+                $replace_array_2 = array_map(function($word) {
+                    return "<span style='background-color:#" . rand(100000, 999999) . "; color:#fff'>$word</span>";
+                }, $replace_array_1);
         
                 while ($row = $result->fetch_assoc()) {
                     $data[] = [
@@ -129,11 +131,12 @@
         global $DATABASE;
         $item_id = $_POST["item_id"];
         $dir = "../../../files/item/".$item_id."/";
-        $obj = $DATABASE->QueryObj("SELECT * FROM tb_item WHERE item_id = '".$_POST["$item_id"]."'");
+        $obj = $DATABASE->QueryObj("SELECT * FROM tb_item WHERE item_id = '".$item_id."'");
         $delete = $DATABASE->QueryDelete("tb_item","item_id = '".$item_id."'");
         if ($delete) {
             $DATABASE->QueryDelete("tb_writer","item_id = '".$item_id."'");
             $DATABASE->QueryDelete("tb_subject","item_id = '".$item_id."'");
+            $DATABASE->QueryDelete("tb_file","item_id = '".$item_id."'");
             foreach ($obj as $row) {
                 deleteFile($dir,$row["file_name"]);
             }

@@ -1,4 +1,23 @@
 $(document).ready(function () {
+
+    load_community()
+
+    function load_community() {
+        var community_id = $('#community_id').val();
+        if (community_id != "") {
+            $.post("pages/author/action.php", {
+                    fn: "load_community",
+                    community_id: community_id
+                },
+                function (data) {
+                    $('#title').html(data[0].community_title);
+                    $('#img').html('<img src="files/community/' + data[0].community_img + '" width="25%">');
+                },
+                "json"
+            );
+        }
+    }
+
     load_author(1);
 
     function load_author(page_number) {

@@ -11,7 +11,7 @@
 
     function load_community() {
         global $DATABASE;
-		$sql = "SELECT * FROM tb_community WHERE MD5(community_id) = '".$_POST["community_id"]."'";
+		$sql = "SELECT * FROM tb_community WHERE MD5(community_id) = '".$DATABASE->Escape($_POST["community_id"])."'";
 		$return['data'] = $DATABASE->QueryObj($sql);
         return json_encode( $return );
     }
@@ -22,7 +22,7 @@
         $limit = 10;
         $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
         $start = ($page - 1) * $limit;
-        $community_id = $_POST["community_id"];
+        $community_id = $DATABASE->Escape($_POST["community_id"]);
         $total_sql = "SELECT COUNT(DISTINCT tb_collection.collection_id) AS total FROM tb_collection
             LEFT JOIN tb_item ON tb_item.collection_id = tb_collection.collection_id 
                               AND MD5(tb_item.community_id) = '$community_id'";

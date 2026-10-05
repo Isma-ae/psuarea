@@ -7,7 +7,7 @@ $(document).ready(function () {
                 community_id: $('#community_id').val()
             },
             function (data) {
-                $('#community_title').html(data.data[0].community_title);
+                $('.community_title').html(data.data[0].community_title);
                 $('#community_img').html('<img src="files/community/' + data.data[0].community_img + '" width="25%">');
             },
             "json"

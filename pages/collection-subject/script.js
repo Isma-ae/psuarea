@@ -1,4 +1,36 @@
 $(document).ready(function () {
+
+    load_collection();
+
+    function load_collection() {
+        $.post("pages/collection-subject/action.php", {
+                fn: "load_collection",
+                collection_id: $('#collection_id').val()
+            },
+            function (data) {
+                $('.collection_name').html(data[0].collection_name);
+            },
+            "json"
+        );
+    }
+
+    load_community()
+
+    function load_community() {
+        var community_id = $('#community_id').val();
+        if (community_id != "") {
+            $.post("pages/collection-subject/action.php", {
+                    fn: "load_community",
+                    community_id: community_id
+                },
+                function (data) {
+                    $('#community').append(data[0].community_title);
+                },
+                "json"
+            );
+        }
+    }
+
     load_subject(1);
 
     function load_subject(page_number) {

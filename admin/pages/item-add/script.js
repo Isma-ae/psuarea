@@ -110,15 +110,15 @@ $(document).ready(function () {
         );
     }
 
-    load_day();
+    /*load_day();
 
     function load_day() {
-        var html = "";
+        var html = '<option value=""> -- เลือกวันที่ -- </option>';
         for (var i = 1; i < 32; i++) {
             html += '<option value="' + i + '">' + i + '</option>';
         }
         $('[name="item_issued_day"]').html(html);
-    }
+    }*/
 
     load_month();
 
@@ -127,7 +127,7 @@ $(document).ready(function () {
             "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
             "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
         ];
-        var monthId = "";
+        var monthId = '<option value=""> -- เลือกเดือน -- </option>';
         $.each(monthsThai, function (index, month) {
             monthId += '<option value="' + (index + 1) + '">' + month + '</option>';
         });

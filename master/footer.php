@@ -9,8 +9,6 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 resources</a>.
 <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></P>
                             <div class="copyright_link">
-                                <a href="#">Turms & Conditions</a>
-                                <a href="#">FAQ</a>
                             </div>
                         </div>
                     </div>
