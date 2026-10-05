@@ -21,21 +21,26 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">แบนเนอร์</h4>
-                    <div id="banner_img">
-                        <img src="..." alt="..." class="img-thumbnail" width="100%">
-                        <button type="button" class="btn btn-danger" id="delete-banner">ลบแบนเนอร์</button>
+                    <div id="banner_img" style="display: none;">
+                        <img src="" alt="แบนเนอร์หน้าแรก" class="img-thumbnail d-block mb-3" style="max-height: 350px; width: 100%; object-fit: cover;">
+                        <button type="button" class="btn btn-danger" id="delete-banner">
+                            <i class="fas fa-trash-alt mr-1"></i> ลบแบนเนอร์
+                        </button>
                     </div>
-                    <form class="mt-4" id="form_banner">
+                    <form class="mt-4" id="form_banner" enctype="multipart/form-data">
                         <input type="hidden" id="fn" name="fn" value="add_banner">
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="page_banner" name="page_banner">
-                                    <label class="custom-file-label" for="page_banner" id="banner-label"></label>
+                                    <input type="file" class="custom-file-input" id="page_banner" name="page_banner" accept="image/*">
+                                    <label class="custom-file-label" for="page_banner" id="banner-label">เลือกรูปภาพแบนเนอร์...</label>
                                 </div>
                             </div>
+                            <small class="form-text text-muted">รองรับไฟล์รูปภาพ เช่น .jpg, .png, .webp (แนะนำขนาด 1920x600 px)</small>
                         </div>
-                        <button type="submit" class="btn btn-success" id="add-banner">เพิ่มแบนเนอร์</button>
+                        <button type="submit" class="btn btn-success" id="add-banner">
+                            <i class="fas fa-upload mr-1"></i> เพิ่มแบนเนอร์
+                        </button>
                     </form>
                 </div>
             </div>
@@ -45,9 +50,13 @@
                 <div class="card-body">
                     <h4 class="card-title">ข้อความไตเติ้ล</h4>
                     <div id="title_show">
-                        <p id="page_title"></p>
-                        <button type="button" class="btn btn-warning edit-title">แก้ไขข้อความ</button>
-                        <button type="button" class="btn btn-success add-title">เพิ่มข้อความ</button>
+                        <div id="page_title" class="p-3 bg-light rounded mb-3 border"></div>
+                        <button type="button" class="btn btn-warning edit-title">
+                            <i class="fas fa-edit mr-1"></i> แก้ไขข้อความ
+                        </button>
+                        <button type="button" class="btn btn-success add-title">
+                            <i class="fas fa-plus mr-1"></i> เพิ่มข้อความ
+                        </button>
                     </div>
                 </div>
             </div>
@@ -60,9 +69,8 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header modal-colored-header bg-warning" id="header-modal">
-                <h4 class="modal-title" id="warning-header-modalLabel">Modal Heading
-                </h4>
-                <button type="button" class="close" data-backdrop="false" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="warning-header-modalLabel">จัดการข้อความไตเติ้ล</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -70,7 +78,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-backdrop="false" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light" data-dismiss="modal">ยกเลิก</button>
                 <button type="button" class="btn btn-warning" id="edit-title">บันทึก</button>
             </div>
         </div>

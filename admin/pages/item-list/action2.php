@@ -78,7 +78,7 @@
                 $data[] = [
                     'item_id' => $row["item_id"],
                     'item_title' => str_ireplace($replace_array_1, $replace_array_2, $row["item_title"]),
-                    'writer_name' => $row["writer_names"] ?? '<span style="color:gray;">No Writers</span>',
+                    'writer_name' => (!empty($row["writer_names"])) ? $row["writer_names"] : '<span style="color:gray;">No Writers</span>',
                     'item_cover' => str_ireplace($replace_array_1, $replace_array_2, $row["item_cover"])
                 ];
             }

@@ -68,7 +68,7 @@
                     aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <form id="form-community">
+                <form id="form-community" enctype="multipart/form-data">
                     <input type="hidden" id="community_id" name="community_id">
                     <input type="hidden" name="fn" id="fn">
                     <div class="mb-3 text-center">
@@ -77,7 +77,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="community_img" class="form-label">ภาพปกชุมชน</label>
-                        <input class="form-control" type="file" name="community_img" id="community_img" accept="img/*"
+                        <input class="form-control" type="file" name="community_img" id="community_img" accept="image/*"
                             onchange="imgf_change(this,'#img','../img/3673.jpg')">
                     </div>
                     <div class="mb-3">

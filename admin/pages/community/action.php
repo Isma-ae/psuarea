@@ -110,10 +110,67 @@
 
     function add_community() {
         global $DATABASE;
-        $dir = "../../../files/community/";
+        $dir = getFilesDir("community") . "/";
+        $has_upload_img = isset($_FILES["community_img"]) && !empty($_FILES["community_img"]["name"]);
+
+        if ($has_upload_img) {
+            $upload_error = $_FILES["community_img"]["error"];
+            if ($upload_error !== UPLOAD_ERR_OK && $upload_error !== UPLOAD_ERR_NO_FILE) {
+                $error_msg = "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ (รหัส: $upload_error)";
+                switch ($upload_error) {
+                    case UPLOAD_ERR_INI_SIZE:
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $error_msg = "ขนาดรูปภาพเกินขีดจำกัดที่เซิร์ฟเวอร์กำหนด (กรุณาตรวจสอบ upload_max_filesize ใน php.ini)";
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        $error_msg = "การอัปโหลดรูปภาพไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง";
+                        break;
+                    case UPLOAD_ERR_NO_TMP_DIR:
+                        $error_msg = "ไม่พบโฟลเดอร์ชั่วคราวสำหรับพักไฟล์บนเซิร์ฟเวอร์ (upload_tmp_dir)";
+                        break;
+                    case UPLOAD_ERR_CANT_WRITE:
+                        $error_msg = "ไม่สามารถบันทึกไฟล์ลงดิสก์ของเซิร์ฟเวอร์ได้";
+                        break;
+                }
+                return json_encode([
+                    "data" => "n",
+                    "title" => "ไม่สำเร็จ",
+                    "message" => $error_msg,
+                    "icon" => "error"
+                ]);
+            }
+        }
+
         $community_id = $DATABASE->QueryMaxId("tb_community","community_id",'COM',11);
-        $img = $_FILES["community_img"];
-        $community_img = uploadFile($dir,$img,"community_".$community_id);
+
+        $community_img = "";
+        if ($has_upload_img && isset($_FILES["community_img"]["tmp_name"]) && !empty($_FILES["community_img"]["tmp_name"])) {
+            if (!is_dir($dir)) {
+                if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
+                    $err = error_get_last();
+                    $sysErr = isset($err['message']) ? $err['message'] : 'Permission denied';
+                    $phpUser = function_exists('posix_getpwuid') ? @posix_getpwuid(posix_geteuid())['name'] : get_current_user();
+                    return json_encode([
+                        "data" => "n",
+                        "title" => "ไม่สามารถสร้างโฟลเดอร์ได้",
+                        "message" => "พาธ: $dir\nระบบแจ้ง: $sysErr\n(PHP User: $phpUser)",
+                        "icon" => "error"
+                    ]);
+                }
+                @chmod($dir, 0777);
+            }
+            $img = $_FILES["community_img"];
+            $community_img = uploadFile($dir,$img,"community_".$community_id);
+            if ($community_img == "") {
+                return json_encode([
+                    "data" => "n",
+                    "title" => "ไม่สามารถบันทึกรูปภาพได้",
+                    "message" => "ไม่สามารถบันทึกรูปภาพลงโฟลเดอร์ $dir ได้ กรุณาตรวจสอบสิทธิ์การเขียนโฟลเดอร์",
+                    "icon" => "error"
+                ]);
+            }
+        }
+
         $insert = $DATABASE->QueryInsert('tb_community',[
             'community_id' => $community_id,
             'community_title' => $_POST["community_title"],
@@ -129,33 +186,91 @@
             ]);
         } else {
             return json_encode([
-                "data"=>"y",
+                "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
                 "message"=>"ไม่สามารถเพิ่มชุมชนได้",
                 "icon"=>"error"
             ]);
         }
-        
     }
 
     function edit_community() {
         global $DATABASE;
-        $dir = "../../../files/community/";
-        $community_id = $_POST["community_id"];
-        $img = $_FILES["community_img"];
-        $community_img = uploadFile($dir,$img,"community_".$community_id);
-        if ($community_img=="") {
-            $update = $DATABASE->QueryUpdate("tb_community",[
-                'community_title' => $_POST["community_title"],
-                'community_description' => $_POST["community_description"]
-            ],"community_id = '".$community_id."'");
-        } else {
-            $update = $DATABASE->QueryUpdate("tb_community",[
-                'community_title' => $_POST["community_title"],
-                'community_description' => $_POST["community_description"],
-                'community_img' => $community_img
-            ],"community_id = '".$community_id."'");
+        $community_id = $DATABASE->Escape($_POST["community_id"]);
+        $dir = getFilesDir("community") . "/";
+        $has_upload_img = isset($_FILES["community_img"]) && !empty($_FILES["community_img"]["name"]);
+        $community_img = "";
+
+        if ($has_upload_img) {
+            $upload_error = $_FILES["community_img"]["error"];
+            if ($upload_error !== UPLOAD_ERR_OK && $upload_error !== UPLOAD_ERR_NO_FILE) {
+                $error_msg = "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ (รหัส: $upload_error)";
+                switch ($upload_error) {
+                    case UPLOAD_ERR_INI_SIZE:
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $error_msg = "ขนาดรูปภาพเกินขีดจำกัดที่เซิร์ฟเวอร์กำหนด (กรุณาตรวจสอบ upload_max_filesize ใน php.ini)";
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        $error_msg = "การอัปโหลดรูปภาพไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง";
+                        break;
+                    case UPLOAD_ERR_NO_TMP_DIR:
+                        $error_msg = "ไม่พบโฟลเดอร์ชั่วคราวสำหรับพักไฟล์บนเซิร์ฟเวอร์ (upload_tmp_dir)";
+                        break;
+                    case UPLOAD_ERR_CANT_WRITE:
+                        $error_msg = "ไม่สามารถบันทึกไฟล์ลงดิสก์ของเซิร์ฟเวอร์ได้";
+                        break;
+                }
+                return json_encode([
+                    "data" => "n",
+                    "title" => "ไม่สำเร็จ",
+                    "message" => $error_msg,
+                    "icon" => "error"
+                ]);
+            }
+
+            if (!is_dir($dir)) {
+                if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
+                    $err = error_get_last();
+                    $sysErr = isset($err['message']) ? $err['message'] : 'Permission denied';
+                    $phpUser = function_exists('posix_getpwuid') ? @posix_getpwuid(posix_geteuid())['name'] : get_current_user();
+                    return json_encode([
+                        "data" => "n",
+                        "title" => "ไม่สามารถสร้างโฟลเดอร์ได้",
+                        "message" => "พาธ: $dir\nระบบแจ้ง: $sysErr\n(PHP User: $phpUser)",
+                        "icon" => "error"
+                    ]);
+                }
+                @chmod($dir, 0777);
+            }
+
+            $old_obj = $DATABASE->QueryObj("SELECT community_img FROM tb_community WHERE community_id = '$community_id'");
+
+            $img = $_FILES["community_img"];
+            $community_img = uploadFile($dir, $img, "community_" . $community_id);
+            if ($community_img == "") {
+                return json_encode([
+                    "data" => "n",
+                    "title" => "ไม่สามารถบันทึกรูปภาพได้",
+                    "message" => "ไม่สามารถบันทึกรูปภาพลงโฟลเดอร์ $dir ได้ กรุณาตรวจสอบสิทธิ์การเขียนโฟลเดอร์",
+                    "icon" => "error"
+                ]);
+            }
+
+            if (!empty($old_obj) && !empty($old_obj[0]["community_img"]) && $old_obj[0]["community_img"] != $community_img) {
+                deleteFile($dir, $old_obj[0]["community_img"]);
+            }
         }
+
+        $updateData = [
+            'community_title' => $_POST["community_title"],
+            'community_description' => $_POST["community_description"]
+        ];
+        if (!empty($community_img)) {
+            $updateData['community_img'] = $community_img;
+        }
+
+        $update = $DATABASE->QueryUpdate("tb_community", $updateData, "community_id = '$community_id'");
+
         if ($update) {
             return json_encode([
                 "data"=>"y",
@@ -165,7 +280,7 @@
             ]);
         } else {
             return json_encode([
-                "data"=>"y",
+                "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
                 "message"=>"ไม่สามารถแก้ไขชุมชนได้",
                 "icon"=>"error"
@@ -175,11 +290,14 @@
 
     function delete_community() {
         global $DATABASE;
-        $dir = "../../../files/community/";
-        $obj = $DATABASE->QueryObj("SELECT * FROM tb_community WHERE community_id = '".$_POST["community_id"]."'");
-        $delete = $DATABASE->QueryDelete("tb_community","community_id = '".$_POST["community_id"]."'");
+        $community_id = $DATABASE->Escape($_POST["community_id"]);
+        $dir = getFilesDir("community") . "/";
+        $obj = $DATABASE->QueryObj("SELECT * FROM tb_community WHERE community_id = '$community_id'");
+        $delete = $DATABASE->QueryDelete("tb_community","community_id = '$community_id'");
         if ($delete) {
-            deleteFile($dir,$obj[0]["community_img"]);
+            if (!empty($obj) && !empty($obj[0]["community_img"])) {
+                deleteFile($dir,$obj[0]["community_img"]);
+            }
             return json_encode([
                 "data"=>"y",
                 "title"=>"สำเร็จ",
@@ -190,9 +308,8 @@
             return json_encode([
                 "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
-                "message"=>"ไม่สามารถลบชุมชนนี้",
+                "message"=>"ไม่สามารถลบชุมชนนี้ได้",
                 "icon"=>"error"
             ]);
         }
-        
     }

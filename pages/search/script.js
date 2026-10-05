@@ -327,25 +327,49 @@ $(document).ready(function () {
             contentType: false,
             processData: false,
             success: function (response) {
-                var data = JSON.parse(response);
+                var data = typeof response === 'object' ? response : JSON.parse(response);
                 var html = '';
-                if (data.data.length > 0) {
+                if (data && data.data && data.data.length > 0) {
                     $.each(data.data, function (index, post) {
                         var cover = (post.cover_name && post.cover_name !== "null") ?
-                            '<img src="files/item/' + post.item_id + '/' + post.cover_name + '" alt="Cover Image">' :
+                            '<img src="files/item/' + post.item_id + '/' + encodeURIComponent(post.cover_name) + '" alt="Cover Image">' :
                             '<img src="img/930231.png" alt="No Cover">';
+
+                        var pubYear = [];
+                        if (post.item_publisher && String(post.item_publisher).trim() !== '') {
+                            pubYear.push(String(post.item_publisher).trim());
+                        }
+                        if (post.item_issued_year && String(post.item_issued_year).trim() !== '') {
+                            pubYear.push(String(post.item_issued_year).trim());
+                        }
+                        var pubYearStr = pubYear.length > 0 ? '(' + pubYear.join(', ') + ') ' : '';
+                        var writerStr = post.writer_names ? post.writer_names : '<span class="text-muted">ไม่ระบุผู้เขียน</span>';
+
+                        var abstractRaw = post.item_abstract_clean || post.item_abstract || '';
+                        var tmp = document.createElement("DIV");
+                        tmp.innerHTML = abstractRaw;
+                        var cleanAbstract = (tmp.textContent || tmp.innerText || "").replace(/\s+/g, ' ').trim();
+                        if (cleanAbstract.length > 350) {
+                            cleanAbstract = cleanAbstract.substring(0, 350) + '...';
+                        }
+                        var safeAbstractHtml = $('<div>').text(cleanAbstract).html();
+
                         html += '<div class="blog-author row my-blog" style="margin-bottom:20px;">';
-                        html += '<div class="col-2"><a href="?p=items&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
-                        html += '<div class="col-10">';
-                        html += '<span class="badge badge-primary">รายการ</span>';
-                        html += '<a href="?p=items&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
-                        html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
-                        html += '<p>' + post.item_abstract + '</p>';
-                        html += '</div>';
+                        html += '  <div class="col-12 col-sm-3 col-md-2 text-center text-sm-left mb-3 mb-sm-0">';
+                        html += '    <a href="?p=items&item_id=' + post.item_id_md5 + '">' + cover + '</a>';
+                        html += '  </div>';
+                        html += '  <div class="col-12 col-sm-9 col-md-10">';
+                        html += '    <span class="badge badge-primary">รายการ</span>';
+                        html += '    <a href="?p=items&item_id=' + post.item_id_md5 + '">';
+                        html += '      <h4 class="item-title">' + $('<div>').text(post.item_title).html() + '</h4>';
+                        html += '    </a>';
+                        html += '    <ul class="blog-info-link"><li>' + pubYearStr + writerStr + '</li></ul>';
+                        html += '    <p class="item-abstract">' + safeAbstractHtml + '</p>';
+                        html += '  </div>';
                         html += '</div>';
                     });
                 } else {
-                    html += '<tr><td colspan="5" class="text-center">No Data Found</td></tr>';
+                    html += '<div class="alert alert-light text-center py-5 border"><i class="ti-search mb-2 d-block" style="font-size: 2rem;"></i>ไม่พบผลการค้นหาที่ตรงกับเงื่อนไข</div>';
                 }
                 $('#item-data').html(html);
                 $('#pagination_link').html(data.pagination);

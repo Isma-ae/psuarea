@@ -66,9 +66,11 @@
                                             }
                                         ?>
                                     </div>
-                                    <a href="#" id="showMore2">Show More</button>
+                                    <p>
+                                        <a href="#" id="showMore2">Show More</a>
                                         <a href="#" id="collapse2" style="float:right">collapse</a>
-                                        <input type="text" class="form-control bg-light" id="search-subject">
+                                    </p>
+                                    <input type="text" class="form-control bg-light" id="search-subject">
                                 </div>
                             </div>
                         </div>

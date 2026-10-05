@@ -20,6 +20,16 @@
 		}
 		return $p.$PROJECT_ROOT."/";
 	}
+	function getProjectRoot() {
+		return dirname(__DIR__);
+	}
+	function getFilesDir($sub = "") {
+		$path = dirname(__DIR__) . '/files';
+		if (!empty($sub)) {
+			$path .= '/' . trim($sub, '/');
+		}
+		return $path;
+	}
 	function getFileType($fileName) {
 		$arr = explode(".", $fileName);
 		if( sizeof($arr)==1 ) return "";
@@ -34,6 +44,10 @@
 		} else {
 			$fileName = $file["name"];
 			$fileTmp = $file["tmp_name"];
+		}
+		if (!is_dir($dir)) {
+			@mkdir($dir, 0777, true);
+			@chmod($dir, 0777);
 		}
 		$fileType = getFileType($fileName);
 		$fileNameNew = "";

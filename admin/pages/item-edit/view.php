@@ -23,7 +23,7 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">รายการ</h4>
-                    <form class="mt-4" id="form-item">
+                    <form class="mt-4" id="form-item" enctype="multipart/form-data">
                         <?php
                             $obj = $DATABASE->QueryObj("SELECT * FROM tb_item WHERE item_id = '".$_GET["item_id"]."'");
                         ?>
@@ -68,7 +68,7 @@
                         <div class="form-group file-show">
                             <label for="file_name">ไฟล์</label>
                             <p>
-                                <a href="<?= $file[0]["file_name"]?>"><?= $file[0]["file_name"]?></a>&nbsp;&nbsp;&nbsp; 
+                                <a href="../files/item/<?= $_GET["item_id"] ?>/<?= $file[0]["file_name"]?>" target="_blank"><i class="fas fa-file-alt"></i> <?= $file[0]["file_name"]?></a>&nbsp;&nbsp;&nbsp; 
                                 <a href="#" style="color:red;" id="del-file" file-id="<?= $file[0]["file_id"]?>">ลบ</a>
                             </p>
                         </div>

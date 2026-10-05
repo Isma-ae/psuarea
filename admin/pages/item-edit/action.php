@@ -65,22 +65,26 @@
 
     function delete_file() {
         global $DATABASE;
-        $dir = "../../../files/item/".$_POST["item_id"]."/";
-        $obj = $DATABASE->QueryObj("SELECT * FROM tb_file WHERE file_id = ".$_POST["file_id"]."");
-        $delete = $DATABASE->QueryDelete("tb_file","file_id = ".$_POST["file_id"]."");
+        $item_id = $DATABASE->Escape($_POST["item_id"]);
+        $file_id = $DATABASE->Escape($_POST["file_id"]);
+        $dir = getFilesDir("item/" . $item_id) . "/";
+        $obj = $DATABASE->QueryObj("SELECT * FROM tb_file WHERE file_id = '$file_id'");
+        $delete = $DATABASE->QueryDelete("tb_file","file_id = '$file_id'");
         if ($delete) {
-            deleteFile($dir,$obj[0]["file_name"]);
+            if (!empty($obj) && isset($obj[0]["file_name"])) {
+                deleteFile($dir, $obj[0]["file_name"]);
+            }
             return json_encode([
                 "data"=>"y",
                 "title"=>"สำเร็จ",
-                "message"=>"ลบแบนเนอร์เรียบร้อย",
+                "message"=>"ลบไฟล์เรียบร้อย",
                 "icon"=>"success"
             ]);
         } else {
             return json_encode([
                 "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
-                "message"=>"ไม่สามารถลบไฟล์นี้",
+                "message"=>"ไม่สามารถลบไฟล์นี้ได้",
                 "icon"=>"error"
             ]);
         }
@@ -88,21 +92,80 @@
 
     function edit_item() {
         global $DATABASE;
-        $item_id = $_POST["item_id"];
-        $dir = "../../../files/item/".$_POST["item_id"]."/";
-        if (!empty($_FILES["file_name"])) {
-            $file_id = $DATABASE->QueryMaxId("tb_file","file_id");
-            $file = $_FILES["file_name"];
-            $file_name = uploadFile($dir,$file,"file_".$file_id);
-            if ($file_name != "") {
-                $DATABASE->QueryInsert('tb_file',[
-                    'file_id' => $file_id,
-                    'file_name' => $file_name,
-                    'file_type' => 'file',
-                    'file_description' => 'ไฟล์เนื้อหา',
-                    'item_id' => $item_id
+        $item_id = $DATABASE->Escape($_POST["item_id"]);
+        $has_upload_file = isset($_FILES["file_name"]) && !empty($_FILES["file_name"]["name"]);
+        $file_name = "";
+
+        if ($has_upload_file) {
+            $upload_error = $_FILES["file_name"]["error"];
+            if ($upload_error !== UPLOAD_ERR_OK && $upload_error !== UPLOAD_ERR_NO_FILE) {
+                $error_msg = "เกิดข้อผิดพลาดในการอัปโหลดไฟล์ (รหัส: $upload_error)";
+                switch ($upload_error) {
+                    case UPLOAD_ERR_INI_SIZE:
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $error_msg = "ขนาดไฟล์เกินขีดจำกัดที่เซิร์ฟเวอร์กำหนด (กรุณาตรวจสอบ upload_max_filesize และ post_max_size ใน php.ini)";
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        $error_msg = "การอัปโหลดไฟล์ไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง";
+                        break;
+                    case UPLOAD_ERR_NO_TMP_DIR:
+                        $error_msg = "ไม่พบโฟลเดอร์ชั่วคราวสำหรับพักไฟล์บนเซิร์ฟเวอร์ (upload_tmp_dir)";
+                        break;
+                    case UPLOAD_ERR_CANT_WRITE:
+                        $error_msg = "ไม่สามารถบันทึกไฟล์ลงดิสก์ของเซิร์ฟเวอร์ได้ กรุณาตรวจสอบพื้นที่หรือสิทธิ์การเขียนดิสก์";
+                        break;
+                }
+                return json_encode([
+                    "data" => "n",
+                    "title" => "ไม่สำเร็จ",
+                    "message" => $error_msg,
+                    "icon" => "error"
                 ]);
             }
+
+            $filesDir = getFilesDir();
+            $parentFolder = getFilesDir("item");
+            $newdir = $parentFolder . "/" . $item_id;
+
+            if (!is_dir($newdir)) {
+                if (!@mkdir($newdir, 0777, true) && !is_dir($newdir)) {
+                    $err = error_get_last();
+                    $sysErr = isset($err['message']) ? $err['message'] : 'Permission denied';
+                    $phpUser = function_exists('posix_getpwuid') ? @posix_getpwuid(posix_geteuid())['name'] : get_current_user();
+                    $permInfo = is_dir($filesDir) ? substr(sprintf('%o', fileperms($filesDir)), -4) : 'ไม่พบโฟลเดอร์';
+
+                    return json_encode([
+                        "data" => "n",
+                        "title" => "ไม่สามารถสร้างโฟลเดอร์ได้",
+                        "message" => "พาธ: $newdir\nระบบแจ้ง: $sysErr\n(PHP User: $phpUser, สิทธิ์ $filesDir: $permInfo)\n\nกรุณารันคำสั่ง: sudo chown -R $phpUser:$phpUser \"$filesDir\" && sudo chmod -R 777 \"$filesDir\"",
+                        "icon" => "error"
+                    ]);
+                }
+                @chmod($parentFolder, 0777);
+                @chmod($newdir, 0777);
+            }
+
+            $dir = $newdir . "/";
+            $file_id = $DATABASE->QueryMaxId("tb_file", "file_id");
+            $file = $_FILES["file_name"];
+            $file_name = uploadFile($dir, $file, "file_" . $file_id);
+
+            if ($file_name == "") {
+                return json_encode([
+                    "data" => "n",
+                    "title" => "ไม่สามารถบันทึกไฟล์ได้",
+                    "message" => "ไม่สามารถย้ายไฟล์ไปยัง $dir ได้ กรุณาตรวจสอบสิทธิ์การเขียนโฟลเดอร์",
+                    "icon" => "error"
+                ]);
+            }
+
+            $DATABASE->QueryInsert('tb_file',[
+                'file_id' => $file_id,
+                'file_name' => $file_name,
+                'file_type' => 'file',
+                'file_description' => 'ไฟล์เนื้อหา',
+                'item_id' => $item_id
+            ]);
         }
         $update = $DATABASE->QueryUpdate('tb_item',[
             'item_title' => $_POST["item_title"],

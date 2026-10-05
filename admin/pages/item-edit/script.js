@@ -194,12 +194,36 @@ $(document).ready(function () {
             cache: false,
             processData: false,
             dataType: "json",
+            beforeSend: function () {
+                if (typeof NProgress !== 'undefined') {
+                    NProgress.start();
+                }
+            },
+            complete: function () {
+                if (typeof NProgress !== 'undefined') {
+                    NProgress.done();
+                }
+            },
             success: function (res) {
                 Swal.fire(res.title, res.message, res.icon).then((result) => {
                     if (res.data == 'y') {
                         window.location.href = "?p=item-list";
                     }
                 });
+            },
+            error: function (xhr, status, error) {
+                var msg = "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์";
+                if (xhr.status == 413) {
+                    msg = "ขนาดไฟล์ใหญ่เกินกว่าที่เซิร์ฟเวอร์กำหนด (413 Request Entity Too Large) กรุณาตรวจสอบการตั้งค่าเว็บเซิร์ฟเวอร์";
+                } else if (xhr.responseText) {
+                    try {
+                        var json = JSON.parse(xhr.responseText);
+                        if (json.message) msg = json.message;
+                    } catch(e) {
+                        msg += " (Status " + xhr.status + ": " + (error || "Unknown Error") + ")";
+                    }
+                }
+                Swal.fire("ไม่สำเร็จ", msg, "error");
             }
         });
     });

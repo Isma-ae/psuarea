@@ -140,7 +140,7 @@
     
         $total_query = "SELECT COUNT(DISTINCT i.item_id) AS total FROM tb_item AS i INNER JOIN tb_type AS t ON i.type_id = t.type_id $search_query";
         $total_result = $DATABASE->QueryObj($total_query);
-        $total_data = $total_result[0]['total'] ?? 0;
+        $total_data = (!empty($total_result) && isset($total_result[0]['total'])) ? $total_result[0]['total'] : 0;
         $total_pages = ceil($total_data / $limit);
     
         // คำสั่ง SQL สำหรับดึงข้อมูล
@@ -164,6 +164,19 @@
                 LIMIT $start, $limit";
     
         $obj = $DATABASE->QueryObj($query);
+        if (!empty($obj) && is_array($obj)) {
+            foreach ($obj as $k => $item) {
+                $raw = isset($item['item_abstract']) ? $item['item_abstract'] : '';
+                $clean = strip_tags($raw);
+                $clean = html_entity_decode($clean, ENT_QUOTES, 'UTF-8');
+                $clean = trim(preg_replace('/\s+/', ' ', $clean));
+                if (mb_strlen($clean, 'UTF-8') > 350) {
+                    $clean = mb_substr($clean, 0, 350, 'UTF-8') . '...';
+                }
+                $obj[$k]['item_abstract'] = $clean;
+                $obj[$k]['item_abstract_clean'] = $clean;
+            }
+        }
     
         // สร้าง Pagination
         $pagination_html = '<div align="center"><ul class="pagination">';

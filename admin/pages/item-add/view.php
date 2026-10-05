@@ -23,7 +23,7 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">รายการ</h4>
-                    <form class="mt-4" id="form-item">
+                    <form class="mt-4" id="form-item" enctype="multipart/form-data">
                         <input type="hidden" name="fn" value="add_item">
                         <input type="hidden" name="item_id">
                         <div class="form-group">
