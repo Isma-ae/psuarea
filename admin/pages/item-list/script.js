@@ -30,7 +30,7 @@ $(document).ready(function () {
                         html += '<td>' + post.writer_name + '</td>';
                         html += '<td><a href="?p=upload&item_id=' + post.item_id + '" class="btn btn-sm btn-success edit"><i class="fas fa-upload"></i></a></td>';
                         html += '<td><div class="btn-list">';
-                        html += '<button type="button" class="btn btn-sm btn-info edit"><i class="icon-eye"></i></button>';
+                        html += '<a href="?p=item-view&item_id=' + post.item_id + '" class="btn btn-sm btn-info" title="ดูข้อมูลผลงาน"><i class="icon-eye"></i></a>';
                         html += '<a href="?p=item-edit&item_id=' + post.item_id + '" class="btn btn-sm btn-warning edit"><i class="icon-note"></i></a>';
                         html += '<button type="button" class="btn btn-sm btn-danger delete-item" item-id="' + post.item_id + '"><i class="icon-trash"></i></button>';
                         html += '</div></td>';

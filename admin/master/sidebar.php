@@ -19,12 +19,12 @@
                         <span class="hide-menu">ข้อมูลหน้าแรก </span>
                     </a>
                 </li>
-                <li class="sidebar-item <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'selected':"").'';?>">
-                    <a class="sidebar-link has-arrow <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'active':"").'';?>" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="item-view" || $page=="upload")?'selected':"").'';?>">
+                    <a class="sidebar-link has-arrow <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="item-view" || $page=="upload")?'active':"").'';?>" href="javascript:void(0)" aria-expanded="false">
                         <i data-feather="file-text" class="feather-icon"></i>
                         <span class="hide-menu">ชุมชน </span>
                     </a>
-                    <ul aria-expanded="false" class="collapse  first-level base-level-line <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'in':"").'';?>">
+                    <ul aria-expanded="false" class="collapse  first-level base-level-line <?php echo ''.(($page=="community" || $page=="collection" || $page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="item-view" || $page=="upload")?'in':"").'';?>">
                         <li class="sidebar-item <?php echo ''.(($page=="community")?'active':"").'';?>">
                             <a href="?p=community" class="sidebar-link <?php echo ''.(($page=="community")?'active':"").'';?>">
                                 <span class="hide-menu"> ขอบเขตเนื้อหา</span>
@@ -35,8 +35,8 @@
                                 <span class="hide-menu"> คอลเล็กชัน </span>
                             </a>
                         </li>
-                        <li class="sidebar-item <?php echo ''.(($page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'active':"").'';?>">
-                            <a href="?p=item-list" class="sidebar-link <?php echo ''.(($page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="upload")?'active':"").'';?>">
+                        <li class="sidebar-item <?php echo ''.(($page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="item-view" || $page=="upload")?'active':"").'';?>">
+                            <a href="?p=item-list" class="sidebar-link <?php echo ''.(($page=="item-list" || $page=="item-add" || $page=="item-edit" || $page=="item-view" || $page=="upload")?'active':"").'';?>">
                                 <span class="hide-menu"> รายการ </span>
                             </a>
                         </li>

@@ -482,10 +482,13 @@ if (empty($current_user)) {
                                             </td>
                                             <td class="text-right">
                                                 <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="?p=item-view&item_id=<?php echo urlencode($it_id); ?>" class="btn btn-outline-info py-1 px-2" title="ดูข้อมูลผลงาน" data-toggle="tooltip">
+                                                        <i data-feather="eye" style="width: 13px; height: 13px;"></i>
+                                                    </a>
                                                     <a href="?p=item-edit&item_id=<?php echo urlencode($it_id); ?>" class="btn btn-outline-primary py-1 px-2" title="แก้ไขรายการ" data-toggle="tooltip">
                                                         <i data-feather="edit-2" style="width: 13px; height: 13px;"></i>
                                                     </a>
-                                                    <a href="?p=upload&item_id=<?php echo urlencode($it_id); ?>" class="btn btn-outline-info py-1 px-2" title="จัดการไฟล์แนบ" data-toggle="tooltip">
+                                                    <a href="?p=upload&item_id=<?php echo urlencode($it_id); ?>" class="btn btn-outline-success py-1 px-2" title="จัดการไฟล์แนบ" data-toggle="tooltip">
                                                         <i data-feather="upload" style="width: 13px; height: 13px;"></i>
                                                     </a>
                                                     <a href="../?p=items&item_id=<?php echo md5($it_id); ?>" target="_blank" class="btn btn-outline-secondary py-1 px-2" title="ดูหน้าเว็บ" data-toggle="tooltip">
