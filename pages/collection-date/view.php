@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="pages/collection-date/style.css">
-<script src="pages/collection-date/script.js"></script>
+<link rel="stylesheet" href="pages/collection-date/style.css?v=<?= file_exists(__DIR__ . '/style.css') ? filemtime(__DIR__ . '/style.css') : time(); ?>">
+<script src="pages/collection-date/script.js?v=<?= file_exists(__DIR__ . '/script.js') ? filemtime(__DIR__ . '/script.js') : time(); ?>"></script>
 <div class="breadcrumb_section">
     <div class="container">
         <nav aria-label="breadcrumb">

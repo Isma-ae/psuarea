@@ -1,5 +1,5 @@
-<link rel="stylesheet" href="pages/author/style.css">
-<script src="pages/collection-item-subject/script.js"></script>
+<link rel="stylesheet" href="pages/author/style.css?v=<?= file_exists(__DIR__ . '/../author/style.css') ? filemtime(__DIR__ . '/../author/style.css') : time(); ?>">
+<script src="pages/collection-item-subject/script.js?v=<?= file_exists(__DIR__ . '/script.js') ? filemtime(__DIR__ . '/script.js') : time(); ?>"></script>
 <div class="breadcrumb_section">
     <div class="container">
         <nav aria-label="breadcrumb">

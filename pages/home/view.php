@@ -1,6 +1,6 @@
 
-<link rel="stylesheet" href="pages/home/style.css">
-<script src="pages/home/script.js"></script>
+<link rel="stylesheet" href="pages/home/style.css?v=<?= file_exists(__DIR__ . '/style.css') ? filemtime(__DIR__ . '/style.css') : time(); ?>">
+<script src="pages/home/script.js?v=<?= file_exists(__DIR__ . '/script.js') ? filemtime(__DIR__ . '/script.js') : time(); ?>"></script>
 <img src="img/banner.jpg" alt="#" class="img-fluid" width="100%" id="banner-img">
 <div class="container">
     <div class="search_widget">

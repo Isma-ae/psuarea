@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="assets/css/magnific-popup.css">
     <link rel="stylesheet" href="assets/css/nice-select.css">
     <link rel="stylesheet" href="assets/css/slick.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= file_exists('assets/css/style.css') ? filemtime('assets/css/style.css') : time(); ?>">
 
     <script src="assets/js/jquery-1.12.1.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
@@ -48,7 +48,7 @@
     <script src="assets/js/jquery.form.js"></script>
     <script src="assets/js/jquery.validate.min.js"></script>
     <script src="assets/js/mail-script.js"></script>
-    <script src="assets/js/custom.js"></script>
+    <script src="assets/js/custom.js?v=<?= file_exists('assets/js/custom.js') ? filemtime('assets/js/custom.js') : time(); ?>"></script>
 </body>
 
 </html>

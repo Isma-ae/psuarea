@@ -110,12 +110,12 @@
 
 .my-blog .item-abstract.expanded {
     display: block !important;
-    -webkit-line-clamp: unset !important;
-    -webkit-box-orient: unset !important;
+    -webkit-line-clamp: none !important;
+    -webkit-box-orient: horizontal !important;
     max-height: none !important;
     height: auto !important;
     overflow: visible !important;
-    text-overflow: unset !important;
+    text-overflow: clip !important;
 }
 
 .btn-toggle-abstract {

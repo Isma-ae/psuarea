@@ -8978,8 +8978,8 @@ footer {
 }
 
 
-#item-data p,
 #item-data .item-abstract,
+#item-data p.item-abstract,
 .my-blog .item-abstract {
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -8988,16 +8988,16 @@ footer {
   text-overflow: ellipsis;
 }
 
-#item-data p.item-abstract.expanded,
 #item-data .item-abstract.expanded,
+#item-data p.item-abstract.expanded,
 .my-blog .item-abstract.expanded {
   display: block !important;
-  -webkit-line-clamp: unset !important;
-  -webkit-box-orient: unset !important;
+  -webkit-line-clamp: none !important;
+  -webkit-box-orient: horizontal !important;
   max-height: none !important;
   height: auto !important;
   overflow: visible !important;
-  text-overflow: unset !important;
+  text-overflow: clip !important;
 }
 
 .btn-toggle-abstract {

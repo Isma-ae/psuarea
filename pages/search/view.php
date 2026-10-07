@@ -1,6 +1,6 @@
-<link rel="stylesheet" href="pages/search/style.css">
+<link rel="stylesheet" href="pages/search/style.css?v=<?= file_exists(__DIR__ . '/style.css') ? filemtime(__DIR__ . '/style.css') : time(); ?>">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
-<script src="pages/search/script.js"></script>
+<script src="pages/search/script.js?v=<?= file_exists(__DIR__ . '/script.js') ? filemtime(__DIR__ . '/script.js') : time(); ?>"></script>
 <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
 <div class="breadcrumb_section">
     <div class="container">
