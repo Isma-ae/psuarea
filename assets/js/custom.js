@@ -274,5 +274,24 @@
     $(this).addClass('active').siblings().removeClass('active');
   });
 
+  // Abstract Show More / Collapse Toggle
+  $(document).off('click', '.btn-toggle-abstract').on('click', '.btn-toggle-abstract', function (e) {
+    e.preventDefault();
+    var $btn = $(this);
+    var $abstract = $btn.prev('.item-abstract');
+    if (!$abstract.length) {
+      $abstract = $btn.siblings('.item-abstract');
+    }
+    if (!$abstract.length) {
+      $abstract = $btn.closest('div').find('.item-abstract');
+    }
+    if ($abstract.hasClass('expanded')) {
+      $abstract.removeClass('expanded');
+      $btn.html('<i class="ti-angle-down"></i> Show More');
+    } else {
+      $abstract.addClass('expanded');
+      $btn.html('<i class="ti-angle-up"></i> Collapse');
+    }
+  });
 
 }(jQuery));

@@ -112,3 +112,34 @@
     margin-bottom: 0;
     text-align: justify;
 }
+
+.my-blog .item-abstract.expanded {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.btn-toggle-abstract {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4B3049;
+    margin-top: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-toggle-abstract:hover,
+.btn-toggle-abstract:focus {
+    color: #1a0a19;
+    text-decoration: none;
+}
+
+.btn-toggle-abstract i {
+    font-size: 11px;
+    margin-right: 5px;
+    font-weight: bold;
+}

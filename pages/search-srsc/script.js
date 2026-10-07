@@ -65,12 +65,15 @@ $(document).ready(function () {
                         var safeAbstractHtml = $('<div>').text(cleanAbstract).html();
 
                         html += '<div class="blog-author row my-blog" style="margin-bottom:20px;">';
-                        html += '  <div class="col-12 col-sm-3 col-md-2 text-center text-sm-left mb-3 mb-sm-0"><a href="?p=item&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
+                        html += '  <div class="col-12 col-sm-3 col-md-2 text-center text-sm-left mb-3 mb-sm-0"><a href="?p=items&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
                         html += '  <div class="col-12 col-sm-9 col-md-10">';
                         html += '    <span class="badge badge-primary">รายการ</span>';
-                        html += '    <a href="?p=item&item_id=' + post.item_id_md5 + '"><h4 class="item-title">' + $('<div>').text(post.item_title).html() + '</h4></a>';
+                        html += '    <a href="?p=items&item_id=' + post.item_id_md5 + '"><h4 class="item-title">' + $('<div>').text(post.item_title).html() + '</h4></a>';
                         html += '    <ul class="blog-info-link"><li>' + pubYearStr + writerStr + '</li></ul>';
                         html += '    <p class="item-abstract">' + safeAbstractHtml + '</p>';
+                        if (cleanAbstract && cleanAbstract.length > 0) {
+                            html += '    <a href="javascript:void(0);" class="btn-toggle-abstract"><i class="ti-angle-down"></i> Show More</a>';
+                        }
                         html += '  </div>';
                         html += '</div>';
                     });

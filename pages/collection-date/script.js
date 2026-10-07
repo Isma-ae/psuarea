@@ -87,6 +87,9 @@ $(document).ready(function () {
                         html += '<a href="?p=items&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
                         html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
                         html += '<p class="item-abstract">' + safeAbstractHtml + '</p>';
+                        if (cleanAbstract && cleanAbstract.length > 0) {
+                            html += '<a href="javascript:void(0);" class="btn-toggle-abstract"><i class="ti-angle-down"></i> Show More</a>';
+                        }
                         html += '</div>';
                         html += '</div>';
                     });

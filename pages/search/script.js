@@ -365,6 +365,9 @@ $(document).ready(function () {
                         html += '    </a>';
                         html += '    <ul class="blog-info-link"><li>' + pubYearStr + writerStr + '</li></ul>';
                         html += '    <p class="item-abstract">' + safeAbstractHtml + '</p>';
+                        if (cleanAbstract && cleanAbstract.length > 0) {
+                            html += '    <a href="javascript:void(0);" class="btn-toggle-abstract"><i class="ti-angle-down"></i> Show More</a>';
+                        }
                         html += '  </div>';
                         html += '</div>';
                     });
