@@ -85,8 +85,19 @@
         GROUP BY i.item_id
         ORDER BY i.item_id DESC
         LIMIT 5";
+        $obj = $DATABASE->QueryObj($sql);
+        if (!empty($obj) && is_array($obj)) {
+            foreach ($obj as $k => $item) {
+                $raw = isset($item['item_abstract']) ? $item['item_abstract'] : '';
+                $clean = strip_tags($raw);
+                $clean = html_entity_decode($clean, ENT_QUOTES, 'UTF-8');
+                $clean = trim(preg_replace('/\s+/', ' ', $clean));
+                $obj[$k]['item_abstract'] = $clean;
+                $obj[$k]['item_abstract_clean'] = $clean;
+            }
+        }
 		$return = array();
-		$return["data"] = $DATABASE->QueryObj($sql);
+		$return["data"] = $obj;
         return json_encode( $return );
     }
     
