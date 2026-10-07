@@ -222,9 +222,6 @@
                 $clean = strip_tags($raw);
                 $clean = html_entity_decode($clean, ENT_QUOTES, 'UTF-8');
                 $clean = trim(preg_replace('/\s+/', ' ', $clean));
-                if (mb_strlen($clean, 'UTF-8') > 350) {
-                    $clean = mb_substr($clean, 0, 350, 'UTF-8') . '...';
-                }
                 $obj[$k]['item_abstract'] = $clean;
                 $obj[$k]['item_abstract_clean'] = $clean;
             }

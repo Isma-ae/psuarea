@@ -287,10 +287,26 @@
     }
     if ($abstract.hasClass('expanded')) {
       $abstract.removeClass('expanded');
-      $btn.html('<i class="ti-angle-down"></i> Show More');
+      $abstract.css({
+        'display': '-webkit-box',
+        '-webkit-line-clamp': '3',
+        '-webkit-box-orient': 'vertical',
+        'overflow': 'hidden',
+        'text-overflow': 'ellipsis',
+        'max-height': ''
+      });
+      $btn.html('<i class="ti-angle-down"></i> แสดงเพิ่มเติม');
     } else {
       $abstract.addClass('expanded');
-      $btn.html('<i class="ti-angle-up"></i> Collapse');
+      $abstract.css({
+        'display': 'block',
+        '-webkit-line-clamp': 'unset',
+        '-webkit-box-orient': 'unset',
+        'overflow': 'visible',
+        'text-overflow': 'unset',
+        'max-height': 'none'
+      });
+      $btn.html('<i class="ti-angle-up"></i> ย่อ');
     }
   });
 

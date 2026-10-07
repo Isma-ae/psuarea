@@ -98,8 +98,11 @@
 .my-blog .item-abstract.expanded {
     display: block !important;
     -webkit-line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
     max-height: none !important;
+    height: auto !important;
     overflow: visible !important;
+    text-overflow: unset !important;
 }
 
 .btn-toggle-abstract {

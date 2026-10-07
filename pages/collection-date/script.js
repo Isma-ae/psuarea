@@ -88,7 +88,7 @@ $(document).ready(function () {
                         html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
                         html += '<p class="item-abstract">' + safeAbstractHtml + '</p>';
                         if (cleanAbstract && cleanAbstract.length > 0) {
-                            html += '<a href="javascript:void(0);" class="btn-toggle-abstract"><i class="ti-angle-down"></i> Show More</a>';
+                            html += '<a href="javascript:void(0);" class="btn-toggle-abstract"><i class="ti-angle-down"></i> แสดงเพิ่มเติม</a>';
                         }
                         html += '</div>';
                         html += '</div>';
@@ -124,6 +124,41 @@ $(document).ready(function () {
         var current_page = parseInt($('#pagination_link .active .page-link').data('page')) || 1;
         if (current_page < window.total_pages) {
             load_data(current_page + 1);
+        }
+    });
+
+    $(document).off('click', '.btn-toggle-abstract').on('click', '.btn-toggle-abstract', function (e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var $abstract = $btn.prev('.item-abstract');
+        if (!$abstract.length) {
+            $abstract = $btn.siblings('.item-abstract');
+        }
+        if (!$abstract.length) {
+            $abstract = $btn.closest('div').find('.item-abstract');
+        }
+        if ($abstract.hasClass('expanded')) {
+            $abstract.removeClass('expanded');
+            $abstract.css({
+                'display': '-webkit-box',
+                '-webkit-line-clamp': '3',
+                '-webkit-box-orient': 'vertical',
+                'overflow': 'hidden',
+                'text-overflow': 'ellipsis',
+                'max-height': ''
+            });
+            $btn.html('<i class="ti-angle-down"></i> แสดงเพิ่มเติม');
+        } else {
+            $abstract.addClass('expanded');
+            $abstract.css({
+                'display': 'block',
+                '-webkit-line-clamp': 'unset',
+                '-webkit-box-orient': 'unset',
+                'overflow': 'visible',
+                'text-overflow': 'unset',
+                'max-height': 'none'
+            });
+            $btn.html('<i class="ti-angle-up"></i> ย่อ');
         }
     });
 

@@ -59,9 +59,6 @@ $(document).ready(function () {
                         var tmp = document.createElement("DIV");
                         tmp.innerHTML = abstractRaw;
                         var cleanAbstract = (tmp.textContent || tmp.innerText || "").replace(/\s+/g, ' ').trim();
-                        if (cleanAbstract.length > 350) {
-                            cleanAbstract = cleanAbstract.substring(0, 350) + '...';
-                        }
                         var safeAbstractHtml = $('<div>').text(cleanAbstract).html();
 
                         html += '<div class="blog-author row my-blog" style="margin-bottom:20px;">';
@@ -72,7 +69,7 @@ $(document).ready(function () {
                         html += '    <ul class="blog-info-link"><li>' + pubYearStr + writerStr + '</li></ul>';
                         html += '    <p class="item-abstract">' + safeAbstractHtml + '</p>';
                         if (cleanAbstract && cleanAbstract.length > 0) {
-                            html += '    <a href="javascript:void(0);" class="btn-toggle-abstract"><i class="ti-angle-down"></i> Show More</a>';
+                            html += '    <a href="javascript:void(0);" class="btn-toggle-abstract"><i class="ti-angle-down"></i> แสดงเพิ่มเติม</a>';
                         }
                         html += '  </div>';
                         html += '</div>';
@@ -111,6 +108,41 @@ $(document).ready(function () {
         if (current_page < window.total_pages) {
             var searchQuery = $('#search_query').val();
             load_data(searchQuery, current_page + 1);
+        }
+    });
+
+    $(document).off('click', '.btn-toggle-abstract').on('click', '.btn-toggle-abstract', function (e) {
+        e.preventDefault();
+        var $btn = $(this);
+        var $abstract = $btn.prev('.item-abstract');
+        if (!$abstract.length) {
+            $abstract = $btn.siblings('.item-abstract');
+        }
+        if (!$abstract.length) {
+            $abstract = $btn.closest('div').find('.item-abstract');
+        }
+        if ($abstract.hasClass('expanded')) {
+            $abstract.removeClass('expanded');
+            $abstract.css({
+                'display': '-webkit-box',
+                '-webkit-line-clamp': '3',
+                '-webkit-box-orient': 'vertical',
+                'overflow': 'hidden',
+                'text-overflow': 'ellipsis',
+                'max-height': ''
+            });
+            $btn.html('<i class="ti-angle-down"></i> แสดงเพิ่มเติม');
+        } else {
+            $abstract.addClass('expanded');
+            $abstract.css({
+                'display': 'block',
+                '-webkit-line-clamp': 'unset',
+                '-webkit-box-orient': 'unset',
+                'overflow': 'visible',
+                'text-overflow': 'unset',
+                'max-height': 'none'
+            });
+            $btn.html('<i class="ti-angle-up"></i> ย่อ');
         }
     });
 
