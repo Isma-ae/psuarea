@@ -13,7 +13,7 @@
 	}
 
     include("../../../php/functions.php");
-    $limit = 6;
+    $limit = 10;
     $condition = "";
     $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
     $start = ($page - 1) * $limit;

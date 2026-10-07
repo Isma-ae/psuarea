@@ -1,27 +1,58 @@
 <?php
+	ob_start();
 	session_start();
 
-	if (!isset($_SESSION["user_name"])) {
-		echo json_encode([
-            "data"=>"n",
-            "title"=>"ไม่สำเร็จ",
-            "message"=>"Session หมดอายุ",
-            "icon"=>"error",
-            "url"=>"./login/"
-        ]);
+	// ตรวจสอบกรณีขนาดข้อมูลเกินขีดจำกัด post_max_size ของ PHP
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
+		ob_end_clean();
+		header('Content-Type: application/json; charset=utf-8');
+		$max_post = ini_get('post_max_size');
+		$max_file = ini_get('upload_max_filesize');
+		echo json_encode(array(
+            "data" => "n",
+            "title" => "ไฟล์มีขนาดใหญ่เกินไป",
+            "message" => "ขนาดข้อมูลที่ส่งเกินขีดจำกัดที่เซิร์ฟเวอร์กำหนด (post_max_size: $max_post, upload_max_filesize: $max_file) กรุณาลดขนาดไฟล์เอกสารลงก่อนอัปโหลด หรือปรับค่าใน php.ini บนเซิร์ฟเวอร์",
+            "icon" => "error"
+        ));
         exit();
 	}
 
-    
+	if (!isset($_SESSION["user_name"]) && !isset($_SESSION["user_fname"]) && !isset($_SESSION["user_id"])) {
+		ob_end_clean();
+		header('Content-Type: application/json; charset=utf-8');
+		echo json_encode(array(
+            "data"=>"n",
+            "title"=>"ไม่สำเร็จ",
+            "message"=>"Session หมดอายุ กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+            "icon"=>"error",
+            "url"=>"./login/"
+        ));
+        exit();
+	}
+
 	include("../../../php/functions.php");
 	$fn = isset( $_POST["fn"] ) ? $_POST["fn"] : "";
+	$resp = "";
+
 	switch ($fn) {
-        case 'delete_writer'		: echo delete_writer(); 		break;
-        case 'delete_subject'		: echo delete_subject(); 		break;
-        case 'delete_file'		    : echo delete_file(); 		    break;
-        case 'edit_item'		    : echo edit_item(); 		    break;
-		default: break;
+        case 'delete_writer'		: $resp = delete_writer(); 		break;
+        case 'delete_subject'		: $resp = delete_subject(); 		break;
+        case 'delete_file'		    : $resp = delete_file(); 		    break;
+        case 'edit_item'		    : $resp = edit_item(); 		    break;
+		default: 
+            $resp = json_encode(array(
+                "data" => "n",
+                "title" => "ไม่สำเร็จ",
+                "message" => "ไม่พบคำสั่งที่ต้องการประมวลผล (Invalid Action: " . htmlspecialchars($fn, ENT_QUOTES, 'UTF-8') . ")",
+                "icon" => "error"
+            ));
+            break;
 	}
+
+	ob_end_clean();
+	header('Content-Type: application/json; charset=utf-8');
+	echo $resp;
+	exit();
 
     function delete_writer() {
         global $DATABASE;

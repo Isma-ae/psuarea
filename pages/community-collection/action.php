@@ -59,6 +59,16 @@
                 LIMIT $start, $limit";
 
         $obj = $DATABASE->QueryObj($query);
+        if (!empty($obj) && is_array($obj)) {
+            foreach ($obj as $k => $item) {
+                $raw = isset($item['item_abstract']) ? $item['item_abstract'] : '';
+                $clean = strip_tags($raw);
+                $clean = html_entity_decode($clean, ENT_QUOTES, 'UTF-8');
+                $clean = trim(preg_replace('/\s+/', ' ', $clean));
+                $obj[$k]['item_abstract'] = $clean;
+                $obj[$k]['item_abstract_clean'] = $clean;
+            }
+        }
         $pagination_html = '<div align="center"><ul class="pagination">';
 
         if ($page > 1) {

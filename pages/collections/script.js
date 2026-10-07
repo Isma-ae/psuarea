@@ -54,13 +54,20 @@ $(document).ready(function () {
                         var cover = (post.cover_name && post.cover_name !== "null") ?
                             '<img src="files/item/' + post.item_id + '/' + post.cover_name + '" alt="Cover Image">' :
                             '<img src="img/930231.png" alt="No Cover">';
+                        
+                        var abstractRaw = post.item_abstract_clean || post.item_abstract || '';
+                        var tmp = document.createElement("DIV");
+                        tmp.innerHTML = abstractRaw;
+                        var cleanAbstract = (tmp.textContent || tmp.innerText || "").replace(/\s+/g, ' ').trim();
+                        var safeAbstractHtml = $('<div>').text(cleanAbstract).html();
+
                         html += '<div class="blog-author row my-blog" style="margin-bottom:20px;">';
                         html += '<div class="col-2"><a href="?p=items&item_id=' + post.item_id_md5 + '">' + cover + '</a></div>';
                         html += '<div class="col-10">';
                         html += '<span class="badge badge-primary">รายการ</span>';
                         html += '<a href="?p=items&item_id=' + post.item_id_md5 + '"><h4>' + post.item_title + '</h4></a>';
                         html += '<ul class="blog-info-link"><li>(' + post.item_publisher + ', ' + post.item_issued_year + ') ' + post.writer_names + '</li></ul>';
-                        html += '<p>' + post.item_abstract + '</p>';
+                        html += '<p class="item-abstract">' + safeAbstractHtml + '</p>';
                         html += '</div>';
                         html += '</div>';
                     });

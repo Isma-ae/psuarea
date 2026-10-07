@@ -23,26 +23,57 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-4">
                         <h4 class="card-title">รายการ</h4>
-                        <div class="ml-auto">
-                            <div class="dropdown sub-dropdown">
-                                <a class="btn btn-info" href="pages/item-list/export.php">
-                                    Export
-                                </a>
-                                <a class="btn btn-success" href="?p=item-add">
-                                    เพิ่มรายการ
-                                </a>
+                        <div class="ml-auto d-flex align-items-center">
+                            <div class="btn-group mr-2">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-download mr-1"></i> ส่งออกข้อมูล (Export)
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right shadow">
+                                    <h6 class="dropdown-header text-dark font-weight-bold">เลือกรูปแบบการส่งออก</h6>
+                                    <a class="dropdown-item py-2 export-link" data-format="excel" href="pages/item-list/export.php?format=excel" target="_blank">
+                                        <i class="far fa-file-excel text-success mr-2 fa-lg"></i> ส่งออกเป็น <strong>Excel</strong> (.xls)
+                                    </a>
+                                    <a class="dropdown-item py-2 export-link" data-format="csv" href="pages/item-list/export.php?format=csv" target="_blank">
+                                        <i class="far fa-file-alt text-info mr-2 fa-lg"></i> ส่งออกเป็น <strong>CSV</strong> (.csv)
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item py-2 export-link" data-format="pdf" href="pages/item-list/export.php?format=pdf" target="_blank">
+                                        <i class="far fa-file-pdf text-danger mr-2 fa-lg"></i> พิมพ์ / บันทึกเป็น <strong>PDF</strong> (.pdf)
+                                    </a>
+                                </div>
+                            </div>
+                            <a class="btn btn-success" href="?p=item-add">
+                                <i class="fas fa-plus mr-1"></i> เพิ่มรายการ
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row align-items-center mb-3">
+                        <div class="col-md-4 mb-2 mb-md-0">
+                            <div class="d-inline-flex align-items-center">
+                                <label class="mr-2 mb-0 text-muted font-weight-normal">แสดง</label>
+                                <select id="limit_select" class="custom-select custom-select-sm" style="width: auto;">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <label class="ml-2 mb-0 text-muted font-weight-normal">รายการต่อหน้า</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-center mb-2 mb-md-0">
+                            <span class="text-muted">รายการทั้งหมด:</span> <span id="total_data" class="badge badge-pill badge-primary font-14 font-weight-bold px-3 py-1">0</span> <span class="text-muted">รายการ</span>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white"><i class="icon-magnifier"></i></span>
+                                </div>
+                                <input type="text" name="search" class="form-control" id="search"
+                                    placeholder="ค้นหารายการ หรือชื่อผู้แต่ง..." />
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom: 20px;">
-                        <div class="col-md-6"></div>
-                        <div class="col-md-3 text-right"><b>รายการรวม - <span id="total_data"></span></b></div>
-                        <div class="col-md-3">
-                            <input type="text" name="search" class="form-control" id="search"
-                                placeholder="Search Here" />
-                        </div>
-                    </div>
-                    <div class="table-resposive">
+                    <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
@@ -63,4 +94,7 @@
         </div>
     </div>
 </div>
+<style>
+.fa-file-csv:before { content: "\f15c"; }
+</style>
 <script src="pages/item-list/script.js"></script>

@@ -127,9 +127,9 @@
                                 placeholder="กรุณากรอกการอ้างอิง..."></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="item_uri">ลิงค์อ่าน e-book</label>
+                            <label for="item_uri">คลิกเพื่อดูเอกสารฉบับเต็ม</label>
                             <input type="text" class="form-control" name="item_uri"
-                                placeholder="กรุณากรอกสำนักพิมพ์...">
+                                placeholder="กรุณากรอกลิงค์เอกสารฉบับเต็ม...">
                         </div>
                         <div class="form-group">
                             <label for="item_publisher">สำนักพิมพ์</label>
@@ -152,12 +152,12 @@
                             <label for="exampleInputEmail1">หมวดหมู่</label>
                             <select class="form-control" name="type_id" style="width: 100%;">
                                 <?php
-                                    $obj = $DATABASE->QueryObj("SELECT * FROM tb_type");
-                                    foreach ($obj as $i => $value) {
-                                ?>
-                                <option value="<?php echo $value['type_id'];?>"><?php echo $value['type_name'];?>
+                                $obj = $DATABASE->QueryObj("SELECT * FROM tb_type");
+                                foreach ($obj as $i => $value) {
+                                    ?>
+                                <option value="<?php echo $value['type_id']; ?>"><?php echo $value['type_name']; ?>
                                 </option>
-                                <?php }?>
+                                <?php } ?>
                             </select>
                         </div>-->
                         <div class="form-group">

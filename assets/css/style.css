@@ -8978,11 +8978,13 @@ footer {
 }
 
 
-#item-data p {
+#item-data p,
+#item-data .item-abstract {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #se_search-box {

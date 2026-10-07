@@ -22,7 +22,7 @@
 
     function load_item(){
         global $DATABASE;
-        $limit = 6;
+        $limit = isset($_POST["limit"]) && (int)$_POST["limit"] > 0 ? (int)$_POST["limit"] : 10;
         $condition = "";
         $page = isset($_POST["page"]) && $_POST["page"] > 1 ? (int)$_POST["page"] : 1;
         $start = ($page - 1) * $limit;
@@ -80,17 +80,26 @@
                 $result = $stmt->get_result();
         
                 $data = [];
-                $replace_array_1 = explode('%', $condition);
-                $replace_array_2 = array_map(function($word) {
+                $has_condition = !empty($condition);
+                $replace_array_1 = $has_condition ? explode('%', $condition) : [];
+                $replace_array_2 = $has_condition ? array_map(function($word) {
                     return "<span style='background-color:#" . rand(100000, 999999) . "; color:#fff'>$word</span>";
-                }, $replace_array_1);
+                }, $replace_array_1) : [];
         
                 while ($row = $result->fetch_assoc()) {
+                    $title = $row["item_title"];
+                    $writer = $row["writer_names"];
+                    $year = $row["item_issued_year"];
+                    if ($has_condition) {
+                        $title = str_ireplace($replace_array_1, $replace_array_2, $title);
+                        $writer = str_ireplace($replace_array_1, $replace_array_2, $writer);
+                        $year = str_ireplace($replace_array_1, $replace_array_2, $year);
+                    }
                     $data[] = [
                         'item_id' => $row["item_id"],
-                        'item_title' => str_ireplace($replace_array_1, $replace_array_2, $row["item_title"]),
-                        'writer_name' => str_ireplace($replace_array_1, $replace_array_2, $row["writer_names"]),
-                        'item_issued_year' => str_ireplace($replace_array_1, $replace_array_2, $row["item_issued_year"])
+                        'item_title' => $title,
+                        'writer_name' => $writer,
+                        'item_issued_year' => $year
                     ];
                 }
                 $stmt->close();
@@ -99,7 +108,7 @@
             }
             $DATABASE->Close();
             $total_pages = ceil($total_data / $limit);
-            $pagination_html = '<div align="center"><ul class="pagination">';
+            $pagination_html = '<div align="center"><ul class="pagination justify-content-center">';
         
             if ($page > 1) {
                 $pagination_html .= '<li class="page-item prev"><a class="page-link" href="#" data-page="' . ($page - 1) . '"><i class="ti-angle-left"></i></a></li>';
@@ -107,9 +116,33 @@
                 $pagination_html .= '<li class="page-item prev disabled"><a class="page-link" href="#"><i class="ti-angle-left"></i></a></li>';
             }
         
-            for ($count = 1; $count <= $total_pages; $count++) {
-                $active = $count == $page ? ' active' : '';
-                $pagination_html .= '<li class="page-item' . $active . '"><a class="page-link" href="#" data-page="' . $count . '">' . $count . '</a></li>';
+            if ($total_pages <= 9) {
+                for ($count = 1; $count <= $total_pages; $count++) {
+                    $active = $count == $page ? ' active' : '';
+                    $pagination_html .= '<li class="page-item' . $active . '"><a class="page-link" href="#" data-page="' . $count . '">' . $count . '</a></li>';
+                }
+            } else {
+                $start_page = max(1, $page - 2);
+                $end_page = min($total_pages, $page + 2);
+                
+                if ($start_page > 1) {
+                    $pagination_html .= '<li class="page-item' . (1 == $page ? ' active' : '') . '"><a class="page-link" href="#" data-page="1">1</a></li>';
+                    if ($start_page > 2) {
+                        $pagination_html .= '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                    }
+                }
+                
+                for ($count = $start_page; $count <= $end_page; $count++) {
+                    $active = $count == $page ? ' active' : '';
+                    $pagination_html .= '<li class="page-item' . $active . '"><a class="page-link" href="#" data-page="' . $count . '">' . $count . '</a></li>';
+                }
+                
+                if ($end_page < $total_pages) {
+                    if ($end_page < $total_pages - 1) {
+                        $pagination_html .= '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>';
+                    }
+                    $pagination_html .= '<li class="page-item' . ($total_pages == $page ? ' active' : '') . '"><a class="page-link" href="#" data-page="' . $total_pages . '">' . $total_pages . '</a></li>';
+                }
             }
         
             if ($page < $total_pages) {
@@ -122,7 +155,10 @@
             echo json_encode([
                 'data' => $data,
                 'pagination' => $pagination_html,
-                'total_data' => $total_data
+                'total_data' => $total_data,
+                'total_pages' => $total_pages,
+                'page' => $page,
+                'limit' => $limit
             ]);
         }
     }
