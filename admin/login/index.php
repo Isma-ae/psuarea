@@ -25,10 +25,10 @@
     <link href="../../assets/sweetalert2/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../../assets/nprogress/nprogress.css">
 
-    <script src="../assets/jquery/dist/jquery.min.js "></script>
+    <script src="../assets/jquery/dist/jquery.min.js"></script>
     <script src="../../assets/sweetalert2/sweetalert2.min.js"></script>
     <script src="../../assets/nprogress/nprogress.js"></script>
-    <script src="script.js "></script>
+    <script src="script.js"></script>
 </head>
 
 <body>
@@ -77,10 +77,31 @@
             </div>
         </div>
     </div>
-    <script src="../assets/popper.js/dist/umd/popper.min.js "></script>
-    <script src="../assets/bootstrap/dist/js/bootstrap.min.js "></script>
+    <script src="../assets/popper.js/dist/umd/popper.min.js"></script>
+    <script src="../assets/bootstrap/dist/js/bootstrap.min.js"></script>
     <script>
-    $(".preloader ").fadeOut();
+        if (typeof $ !== 'undefined') {
+            $(".preloader").fadeOut(150);
+        }
+        (function() {
+            function removePreloader() {
+                var p = document.querySelector('.preloader');
+                if (p) {
+                    p.style.opacity = '0';
+                    p.style.transition = 'opacity 0.2s ease';
+                    setTimeout(function() {
+                        p.style.display = 'none';
+                    }, 200);
+                }
+            }
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                removePreloader();
+            } else {
+                window.addEventListener('DOMContentLoaded', removePreloader);
+                window.addEventListener('load', removePreloader);
+            }
+            setTimeout(removePreloader, 400);
+        })();
     </script>
 </body>
 

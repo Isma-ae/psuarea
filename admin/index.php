@@ -63,6 +63,30 @@
     <script src="dist/js/custom.min.js"></script>
     <script src="assets/prism/prism.js"></script>
     <script src="assets/select2/js/select2.full.min.js"></script>
+    <script>
+        if (typeof $ !== 'undefined') {
+            $(".preloader").fadeOut(150);
+        }
+        (function() {
+            function removePreloader() {
+                var p = document.querySelector('.preloader');
+                if (p) {
+                    p.style.opacity = '0';
+                    p.style.transition = 'opacity 0.2s ease';
+                    setTimeout(function() {
+                        p.style.display = 'none';
+                    }, 200);
+                }
+            }
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                removePreloader();
+            } else {
+                window.addEventListener('DOMContentLoaded', removePreloader);
+                window.addEventListener('load', removePreloader);
+            }
+            setTimeout(removePreloader, 500);
+        })();
+    </script>
 </body>
 
 </html>

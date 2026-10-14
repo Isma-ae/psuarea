@@ -616,13 +616,8 @@ if (empty($current_user)) {
     };
 </script>
 
-<!-- Load Chart.js (CDN first, local bundle fallback) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.bundle.min.js"></script>
-<script>
-    if (typeof Chart === 'undefined') {
-        document.write('<script src="assets/chart.js/Chart.bundle.min.js"><\/script>');
-    }
-</script>
+<!-- Load Chart.js (Local bundle) -->
+<script src="assets/chart.js/Chart.bundle.min.js"></script>
 
 <!-- Dashboard Script -->
 <script src="pages/home/script.js"></script>
