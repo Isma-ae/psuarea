@@ -31,7 +31,7 @@
         exit();
 	}
 
-    include(dirname(__FILE__) . "/../../../php/functions.php");
+    include_once(dirname(__FILE__) . "/../../../php/functions.php");
 
     // ตรวจสอบและอัปเดตโครงสร้างฐานข้อมูลอัตโนมัติหากยังไม่มีฟิลด์/ตารางใหม่
     ensure_schema();

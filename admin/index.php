@@ -3,6 +3,7 @@
     include("../php/functions.php");
     if (!isset($_SESSION["user_name"])) {
         header('Location: ./login');
+        exit();
     }
     $page = isset($_GET['p']) ? $_GET['p']:'home';
 ?>

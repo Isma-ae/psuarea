@@ -1,147 +1,264 @@
 $(document).ready(function () {
-    tinymce.init({
-        selector: 'textarea#item_abstract',
-        height: 300,
-        promotion: false
-    });
+    // ปิด preloader ทันทีเพื่อป้องกันหน้าค้างที่สถานะ loading
+    if (typeof $ !== 'undefined' && $('.preloader').length) {
+        $('.preloader').fadeOut(150);
+    }
 
-    $(".add-author").click(function () {
-        let newIndex = 0; // นับจำนวนผู้เขียน
-        let newAuthor = '<div class="row author-main" data-action="edit_author">\
-                                <div class="col-md-4">\
-                                    <div class="form-group">\
-                                        <label for="edit_fname">ชื่อผู้เขียน</label>\
-                                        <input type="text" class="form-control" name="edit_fname[]"\
-                                            placeholder="กรุณากรอกชื่อผู้เขียน...">\
-                                    </div>\
-                                </div>\
-                                <div class="col-md-4">\
-                                    <div class="form-group">\
-                                        <label for="edit_lname">นามสกุล</label>\
-                                        <input type="text" class="form-control" name="edit_lname[]"\
-                                            aria-describedby="emailHelp" placeholder="กรุณากรอกนามสกุลผู้เขียน...">\
-                                    </div>\
-                                </div>\
-                                <div class="col-md-2">\
-                                    <div class="form-group">\
-                                        <label for="edit_main">ประเภทผู้เขียน</label>\
-                                        <div class="form-check">\
-                                            <input class="form-check-input" type="radio" name="edit_main[' + newIndex + ']" value="2">\
-                                            <label class="form-check-label" for="edit_main' + newIndex + '">\
-                                                ผู้เขียนหลัก\
-                                            </label>\
-                                        </div>\
-                                    </div>\
-                                </div>\
-                                <div class="col-md-2 pt-4">\
-                                    <button type="button" class="btn btn-danger remove-author">ลบผู้เขียน</button>\
-                                </div>\
-                            </div>';
-
-
-        $("#authors-list").append(newAuthor);
-    });
-
-    $(document).on("click", ".remove-author", function () {
-        var del_action = $(this).closest(".author-main").attr('data-action');
-        if (del_action == 'edit_author') {
-            $(this).closest(".author-main").remove();
-        } else {
-            var writer_id = $(this).attr('writer-id');
-            $(this).closest(".author-main").remove();
-            Swal.fire({
-                title: 'คุณต้องการลบผู้เขียนคนนี้ใช่หรือไม่?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'ใช่, ลบผู้เขียนคนนี้',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "post",
-                        url: "pages/item-edit/action.php",
-                        data: {
-                            fn: "delete_writer",
-                            writer_id: writer_id
-                        },
-                        dataType: "json",
-                        success: function (res) {
-                            Swal.fire(res.title, res.message, res.icon).then((result) => {});
-                        }
-                    });
-                }
+    // 1. กำหนดค่า TinyMCE อย่างปลอดภัย
+    try {
+        if (typeof tinymce !== 'undefined') {
+            tinymce.init({
+                selector: 'textarea#item_abstract',
+                height: 300,
+                promotion: false
             });
         }
-    });
+    } catch (e) {
+        console.warn('TinyMCE init error:', e);
+    }
 
-    $(document).on("change", 'input[type="radio"]', function () {
-        $('input[type="radio"]').prop('checked', false).val(2);
-        $(this).prop('checked', true).val(1);
-    });
-
-    $(".add-subject").click(function () {
-        let newSubject = '<div class="row subject" data-action="edit_subject">\
-                            <div class="col-md-10">\
-                                <div class="form-group">\
-                                    <label for="edit_name">หัวเรื่อง</label>\
-                                    <input type="text" class="form-control" name="edit_name[]" placeholder="กรุณากรอกหัวเรื่อง...">\
-                                </div>\
-                            </div>\
-                            <div class="col-md-2 pt-4">\
-                                <button type="button" class="btn btn-danger remove-subject">ลบหัวเรื่อง</button>\
-                            </div>\
-                        </div>';
-        $(".subject").last().after(newSubject);
-    });
-
-    $(document).on("click", ".remove-subject", function () {
-        var del_action = $(this).closest(".subject").attr('data-action');
-        if (del_action == 'edit_subject') {
-            $(this).closest(".subject").remove();
-        } else {
-            $(this).closest(".subject").remove();
-            var subject_id = $(this).attr('subject-id');
-            Swal.fire({
-                title: 'คุณต้องการลบหัวเรื่องนี้ใช่หรือไม่?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'ใช่, ลบหัวเรื่องนี้',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "post",
-                        url: "pages/item-edit/action.php",
-                        data: {
-                            fn: "delete_subject",
-                            subject_id: subject_id
-                        },
-                        dataType: "json",
-                        success: function (res) {
-                            Swal.fire(res.title, res.message, res.icon).then((result) => {});
-                        }
-                    });
-                }
-            });
+    // 2. เริ่มต้นการทำงาน Select2 บนชุมชน (Multiple)
+    function initSelect2() {
+        try {
+            if ($.fn && $.fn.select2 && $('#community_id').length) {
+                $('#community_id').select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'เลือกชุมชน (สามารถเลือกได้มากกว่า 1 ชุมชน)',
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+        } catch (e) {
+            console.warn('Select2 init error:', e);
         }
-    });
+    }
+    initSelect2();
+    if (!$.fn || !$.fn.select2) {
+        $(window).on('load', initSelect2);
+    }
 
+    // 3. ฟังก์ชันปรับฟิลด์ตามคอลเล็กชันที่เลือก (รองรับ instant load โดยไม่ต้อง animate)
+    function updateFormFields(colId, isInstant) {
+        var duration = isInstant ? 0 : 250;
 
-    $('.file-add').hide();
-    load_file();
+        if (!colId || colId === "0") {
+            if (isInstant) {
+                $('#section-contributor, #section-journal-volume, #section-isbn').hide();
+            } else {
+                $('#section-contributor, #section-journal-volume, #section-isbn').slideUp(duration);
+            }
+            $('#creator-add-wrapper').hide();
 
-    function load_file() {
-        if ($(".file-show").length) {
-            $('.file-add').hide();
-        } else {
-            $('.file-add').show();
+            $('.creator-org-col').removeClass('d-none');
+            $('.creator-name-col').removeClass('col-md-10 col-md-5').addClass('col-md-6');
+            $('.creator-org-col').removeClass('col-md-5').addClass('col-md-6');
+            $('.creator-action-col').hide();
+            return;
+        }
+
+        switch (colId) {
+            case 'COM00000000001': // วิจัย - Research
+            case 'COM00000000002': // วิทยานิพนธ์ - Thesis
+                // Creater: Name + Organization, ผู้เขียน(ไม่สามารถเพิ่มได้)
+                $('#creator-add-wrapper').hide();
+                $('.creator-org-col').removeClass('d-none');
+                $('.creator-name-col').removeClass('col-md-10 col-md-5').addClass('col-md-6');
+                $('.creator-org-col').removeClass('col-md-5').addClass('col-md-6');
+                $('.creator-action-col').hide();
+
+                // contributor: แสดง
+                if (isInstant) {
+                    $('#section-contributor').show();
+                    $('#section-journal-volume, #section-isbn').hide();
+                } else {
+                    $('#section-contributor').slideDown(duration);
+                    $('#section-journal-volume, #section-isbn').slideUp(duration);
+                }
+                break;
+
+            case 'COM00000000004': // บทความทางวิชาการ - Academic Article
+                // Creater: Name + Organization, ผู้เขียน(เพิ่มได้)
+                $('#creator-add-wrapper').show();
+                $('.creator-org-col').removeClass('d-none');
+                $('.creator-name-col').removeClass('col-md-10 col-md-6').addClass('col-md-5');
+                $('.creator-org-col').removeClass('col-md-6').addClass('col-md-5');
+                $('.creator-action-col').show();
+                updateCreatorRemoveButtons();
+
+                // Journal & Volume: แสดง, contributor & ISBN: ซ่อน
+                if (isInstant) {
+                    $('#section-journal-volume').show();
+                    $('#section-contributor, #section-isbn').hide();
+                } else {
+                    $('#section-journal-volume').slideDown(duration);
+                    $('#section-contributor, #section-isbn').slideUp(duration);
+                }
+                break;
+
+            case 'COM00000000005': // หนังสือ - Book
+                // Creater: Name, ผู้เขียน(เพิ่มได้)
+                $('#creator-add-wrapper').show();
+                $('.creator-org-col').addClass('d-none');
+                $('.creator-name-col').removeClass('col-md-6 col-md-5').addClass('col-md-10');
+                $('.creator-action-col').show();
+                updateCreatorRemoveButtons();
+
+                // ISBN: แสดง, contributor & Journal: ซ่อน
+                if (isInstant) {
+                    $('#section-isbn').show();
+                    $('#section-contributor, #section-journal-volume').hide();
+                } else {
+                    $('#section-isbn').slideDown(duration);
+                    $('#section-contributor, #section-journal-volume').slideUp(duration);
+                }
+                break;
+
+            case 'COM00000000006': // รายงาน - Report
+                // Creater: Name, ผู้เขียน(เพิ่มได้)
+                $('#creator-add-wrapper').show();
+                $('.creator-org-col').addClass('d-none');
+                $('.creator-name-col').removeClass('col-md-6 col-md-5').addClass('col-md-10');
+                $('.creator-action-col').show();
+                updateCreatorRemoveButtons();
+
+                // contributor, Journal, ISBN: ซ่อน
+                if (isInstant) {
+                    $('#section-contributor, #section-journal-volume, #section-isbn').hide();
+                } else {
+                    $('#section-contributor, #section-journal-volume, #section-isbn').slideUp(duration);
+                }
+                break;
+
+            default:
+                break;
         }
     }
 
+    // เริ่มต้นปรับฟิลด์ตามคอลเล็กชันที่มีอยู่ (โหลดทันทีไม่กระตุก)
+    updateFormFields($('#collection_id').val(), true);
+
+    // เมื่อเปลี่ยนคอลเล็กชัน
+    $('#collection_id').on('change', function () {
+        updateFormFields($(this).val(), false);
+    });
+
+    // 4. จัดการ Creater (เพิ่ม/ลบ)
+    $('#btn-add-creator').click(function () {
+        let colId = $('#collection_id').val();
+        let isOrgVisible = (colId === 'COM00000000004');
+        let nameColClass = isOrgVisible ? 'col-md-5' : 'col-md-10';
+        let orgColClass = isOrgVisible ? 'col-md-5' : 'd-none';
+
+        let html = `
+            <div class="row creator-item mb-2 align-items-center">
+                <div class="${nameColClass} creator-name-col">
+                    <label class="small text-muted mb-1">Name</label>
+                    <input type="text" class="form-control" name="creator_name[]" placeholder="กรุณากรอก Name...">
+                </div>
+                <div class="${orgColClass} creator-org-col">
+                    <label class="small text-muted mb-1">Organization</label>
+                    <input type="text" class="form-control" name="creator_org[]" placeholder="กรุณากรอก Organization...">
+                </div>
+                <div class="col-md-2 creator-action-col pt-4">
+                    <button type="button" class="btn btn-outline-danger btn-block btn-remove-creator">
+                        <i class="fas fa-trash-alt mr-1"></i> ลบ
+                    </button>
+                </div>
+            </div>
+        `;
+        $('#creators-list').append(html);
+        updateCreatorRemoveButtons();
+    });
+
+    $(document).on('click', '.btn-remove-creator', function () {
+        $(this).closest('.creator-item').remove();
+        updateCreatorRemoveButtons();
+    });
+
+    function updateCreatorRemoveButtons() {
+        let colId = $('#collection_id').val();
+        if (colId === 'COM00000000001' || colId === 'COM00000000002') {
+            $('.creator-action-col').hide();
+            return;
+        }
+        let items = $('#creators-list .creator-item');
+        if (items.length <= 1) {
+            items.find('.btn-remove-creator').hide();
+        } else {
+            items.find('.btn-remove-creator').show();
+        }
+    }
+
+    // 5. จัดการ contributor (เพิ่ม/ลบ)
+    $('#btn-add-contributor').click(function () {
+        let html = `
+            <div class="row contributor-item mb-2 align-items-center">
+                <div class="col-md-5">
+                    <label class="small text-muted mb-1">Name</label>
+                    <input type="text" class="form-control" name="contributor_name[]" placeholder="กรุณากรอก Name...">
+                </div>
+                <div class="col-md-5">
+                    <label class="small text-muted mb-1">Role</label>
+                    <input type="text" class="form-control" name="contributor_role[]" placeholder="กรุณากรอก Role (เช่น อาจารย์ที่ปรึกษา, ผู้ร่วมวิจัย)...">
+                </div>
+                <div class="col-md-2 pt-4">
+                    <button type="button" class="btn btn-outline-danger btn-block btn-remove-contributor">
+                        <i class="fas fa-trash-alt mr-1"></i> ลบ
+                    </button>
+                </div>
+            </div>
+        `;
+        $('#contributors-list').append(html);
+        updateContributorRemoveButtons();
+    });
+
+    $(document).on('click', '.btn-remove-contributor', function () {
+        $(this).closest('.contributor-item').remove();
+        updateContributorRemoveButtons();
+    });
+
+    function updateContributorRemoveButtons() {
+        let items = $('#contributors-list .contributor-item');
+        if (items.length <= 1) {
+            items.find('.btn-remove-contributor').hide();
+        } else {
+            items.find('.btn-remove-contributor').show();
+        }
+    }
+
+    // 6. จัดการ Subject (เพิ่ม/ลบ)
+    $('#btn-add-subject').click(function () {
+        let html = `
+            <div class="row subject-item mb-2 align-items-center">
+                <div class="col-md-10">
+                    <input type="text" class="form-control" name="subject_name[]" placeholder="กรุณากรอก Subject...">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-danger btn-block btn-remove-subject">
+                        <i class="fas fa-trash-alt mr-1"></i> ลบ
+                    </button>
+                </div>
+            </div>
+        `;
+        $('#subjects-list').append(html);
+        updateSubjectRemoveButtons();
+    });
+
+    $(document).on('click', '.btn-remove-subject', function () {
+        $(this).closest('.subject-item').remove();
+        updateSubjectRemoveButtons();
+    });
+
+    function updateSubjectRemoveButtons() {
+        let items = $('#subjects-list .subject-item');
+        if (items.length <= 1) {
+            items.find('.btn-remove-subject').hide();
+        } else {
+            items.find('.btn-remove-subject').show();
+        }
+    }
+
+    // 7. จัดการลบไฟล์เดิม
     $('#del-file').click(function (e) {
         e.preventDefault();
         var file_id = $(this).attr('file-id');
@@ -166,9 +283,8 @@ $(document).ready(function () {
                     },
                     dataType: "json",
                     success: function (res) {
-                        Swal.fire(res.title, res.message, res.icon).then((result) => {
-                            $(".file-show").hide();
-                            $('.file-add').show();
+                        Swal.fire(res.title, res.message, res.icon).then(() => {
+                            $(".file-show").remove();
                         });
                     }
                 });
@@ -176,24 +292,41 @@ $(document).ready(function () {
         });
     });
 
+    // 8. การตรวจสอบและส่งฟอร์ม (Submit)
     $('#edit-item').click(function (e) {
         e.preventDefault();
 
-        // 1. ดึงข้อมูลจาก TinyMCE อย่างปลอดภัย
+        // 8.1 ดึงเนื้อหาจาก TinyMCE
         if (typeof tinyMCE !== 'undefined' && tinyMCE.get('item_abstract')) {
             var item_abstract = tinyMCE.get('item_abstract').getContent();
             $('[name="item_abstract"]').val(item_abstract);
         }
 
-        // 2. ตรวจสอบข้อมูลจำเป็นเบื้องต้น
+        // 8.2 ตรวจสอบการเลือกชุมชน (อย่างน้อย 1 ชุมชน)
+        var community_ids = $('#community_id').val();
+        if (!community_ids || (Array.isArray(community_ids) && community_ids.length === 0)) {
+            Swal.fire("กรุณากรอกข้อมูล", "กรุณาเลือกชุมชนอย่างน้อย 1 ชุมชน", "warning");
+            $('#community_id').focus();
+            return false;
+        }
+
+        // 8.3 ตรวจสอบการเลือกคอลเล็กชัน
+        var collection_id = $('#collection_id').val();
+        if (!collection_id || collection_id === '0') {
+            Swal.fire("กรุณากรอกข้อมูล", "กรุณาเลือกคอลเล็กชัน", "warning");
+            $('#collection_id').focus();
+            return false;
+        }
+
+        // 8.4 ตรวจสอบ Title
         var item_title = $.trim($('[name="item_title"]').val());
         if (!item_title) {
-            Swal.fire("กรุณากรอกข้อมูล", "กรุณากรอกชื่อเรื่องผลงาน", "warning");
+            Swal.fire("กรุณากรอกข้อมูล", "กรุณากรอก Title", "warning");
             $('[name="item_title"]').focus();
             return false;
         }
 
-        // 3. ตรวจสอบขนาดไฟล์ที่เลือกล่วงหน้า (Client-side validation)
+        // 8.5 ตรวจสอบขนาดไฟล์ที่เลือกล่วงหน้า (ไม่เกิน 40 MB)
         var fileInput = $('[name="file_name"]')[0];
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
             var file = fileInput.files[0];
@@ -217,7 +350,7 @@ $(document).ready(function () {
         e.preventDefault();
 
         if (isSubmitting) {
-            return false; // ป้องกันการกดซ้ำซ้อน
+            return false;
         }
         isSubmitting = true;
 
@@ -234,7 +367,7 @@ $(document).ready(function () {
             cache: false,
             processData: false,
             dataType: "json",
-            timeout: 180000, // Timeout 3 นาที
+            timeout: 180000,
             beforeSend: function () {
                 if (typeof NProgress !== 'undefined') {
                     NProgress.start();
@@ -291,6 +424,11 @@ $(document).ready(function () {
                 }
                 Swal.fire(title, msg, "error");
             }
-        });
     });
+});
+
+$(window).on('load', function () {
+    if (typeof $ !== 'undefined' && $('.preloader').length) {
+        $('.preloader').fadeOut(100);
+    }
 });

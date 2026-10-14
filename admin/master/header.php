@@ -46,7 +46,7 @@
                         <img src="https://cdn-icons-png.freepik.com/512/9187/9187604.png" alt="user"
                             class="rounded-circle" width="40">
                         <span class="ml-2 d-none d-lg-inline-block"> <span
-                                class="text-dark"><?php echo $_SESSION["user_fname"].' '.$_SESSION["user_lname"];?></span>
+                                class="text-dark"><?php echo htmlspecialchars(trim(($_SESSION["user_fname"] ?? '') . ' ' . ($_SESSION["user_lname"] ?? '')) ?: ($_SESSION["user_name"] ?? 'Admin')); ?></span>
                             <i data-feather="chevron-down" class="svg-icon"></i></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">

@@ -2,7 +2,7 @@
 	ob_start();
 	session_start();
 
-	// ตรวจสอบกรณีขนาดข้อมูลเกินขีดจำกัด post_max_size ของ PHP
+	// 1. ตรวจสอบกรณีขนาดข้อมูลเกินขีดจำกัด post_max_size ของ PHP
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
 		ob_end_clean();
 		header('Content-Type: application/json; charset=utf-8');
@@ -17,6 +17,7 @@
         exit();
 	}
 
+	// 2. ตรวจสอบ Session
 	if (!isset($_SESSION["user_name"]) && !isset($_SESSION["user_fname"]) && !isset($_SESSION["user_id"])) {
 		ob_end_clean();
 		header('Content-Type: application/json; charset=utf-8');
@@ -30,7 +31,11 @@
         exit();
 	}
 
-	include("../../../php/functions.php");
+	include_once(dirname(__FILE__) . "/../../../php/functions.php");
+
+    // ตรวจสอบและอัปเดตโครงสร้างฐานข้อมูลอัตโนมัติหากยังไม่มีฟิลด์/ตารางใหม่
+    ensure_schema();
+
 	$fn = isset( $_POST["fn"] ) ? $_POST["fn"] : "";
 	$resp = "";
 
@@ -54,9 +59,65 @@
 	echo $resp;
 	exit();
 
+    function ensure_schema() {
+        global $DATABASE;
+        // 1. เพิ่มฟิลด์ใหม่ใน tb_item โดยไม่กระทบฟิลด์เดิม
+        $cols_item = array_column($DATABASE->QueryObj('DESCRIBE tb_item'), 'Field');
+        if (!in_array('item_journal', $cols_item)) {
+            $DATABASE->Query("ALTER TABLE `tb_item` ADD `item_journal` VARCHAR(255) NULL DEFAULT NULL AFTER `item_publisher`");
+        }
+        if (!in_array('item_volume', $cols_item)) {
+            $DATABASE->Query("ALTER TABLE `tb_item` ADD `item_volume` VARCHAR(255) NULL DEFAULT NULL AFTER `item_journal`");
+        }
+        if (!in_array('item_isbn', $cols_item)) {
+            $DATABASE->Query("ALTER TABLE `tb_item` ADD `item_isbn` VARCHAR(100) NULL DEFAULT NULL AFTER `item_volume`");
+        }
+
+        // 2. เพิ่มฟิลด์ writer_organization ใน tb_writer โดยไม่กระทบฟิลด์เดิม
+        $cols_writer = array_column($DATABASE->QueryObj('DESCRIBE tb_writer'), 'Field');
+        if (!in_array('writer_organization', $cols_writer)) {
+            $DATABASE->Query("ALTER TABLE `tb_writer` ADD `writer_organization` VARCHAR(255) NULL DEFAULT NULL AFTER `writer_lname`");
+        }
+
+        // 3. สร้างตาราง tb_contributor สำหรับเก็บข้อมูล contributor
+        $DATABASE->Query("CREATE TABLE IF NOT EXISTS `tb_contributor` (
+          `contributor_id` int(11) NOT NULL AUTO_INCREMENT,
+          `contributor_name` varchar(255) DEFAULT NULL,
+          `contributor_role` varchar(255) DEFAULT NULL,
+          `item_id` varchar(14) DEFAULT NULL,
+          PRIMARY KEY (`contributor_id`),
+          KEY `item_id` (`item_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+
+        // 4. สร้างตาราง tb_item_community สำหรับรองรับการเลือกหลายชุมชนต่อ 1 รายการ
+        $DATABASE->Query("CREATE TABLE IF NOT EXISTS `tb_item_community` (
+          `item_community_id` int(11) NOT NULL AUTO_INCREMENT,
+          `item_id` varchar(14) DEFAULT NULL,
+          `community_id` varchar(14) DEFAULT NULL,
+          PRIMARY KEY (`item_community_id`),
+          KEY `item_id` (`item_id`),
+          KEY `community_id` (`community_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;");
+
+        // 5. ตรวจสอบและเพิ่ม 5 คอลเล็กชันหลักหากยังไม่มี
+        $collections = array(
+            array('COM00000000001', 'วิจัย - Research'),
+            array('COM00000000002', 'วิทยานิพนธ์ - Thesis'),
+            array('COM00000000004', 'บทความทางวิชาการ - Academic Article'),
+            array('COM00000000005', 'หนังสือ - Book'),
+            array('COM00000000006', 'รายงาน - Report')
+        );
+        foreach ($collections as $col) {
+            $DATABASE->Query("INSERT INTO `tb_collection` (`collection_id`, `collection_name`) 
+                              VALUES ('{$col[0]}', '{$col[1]}') 
+                              ON DUPLICATE KEY UPDATE `collection_name` = '{$col[1]}'");
+        }
+    }
+
     function delete_writer() {
         global $DATABASE;
-        $delete = $DATABASE->QueryDelete("tb_writer", "writer_id = '".$_POST["writer_id"]."'");
+        $writer_id = isset($_POST["writer_id"]) ? $DATABASE->Escape($_POST["writer_id"]) : "";
+        $delete = $DATABASE->QueryDelete("tb_writer", "writer_id = '$writer_id'");
         if ($delete) {
             return json_encode([
                 "data"=>"y",
@@ -76,7 +137,8 @@
 
     function delete_subject() {
         global $DATABASE;
-        $delete = $DATABASE->QueryDelete("tb_subject", "subject_id = ".$_POST["subject_id"]."");
+        $subject_id = isset($_POST["subject_id"]) ? (int)$_POST["subject_id"] : 0;
+        $delete = $DATABASE->QueryDelete("tb_subject", "subject_id = $subject_id");
         if ($delete) {
             return json_encode([
                 "data"=>"y",
@@ -123,7 +185,58 @@
 
     function edit_item() {
         global $DATABASE;
-        $item_id = $DATABASE->Escape($_POST["item_id"]);
+        $item_id = isset($_POST["item_id"]) ? $DATABASE->Escape($_POST["item_id"]) : "";
+        if (empty($item_id)) {
+            return json_encode(array(
+                "data" => "n",
+                "title" => "ไม่สำเร็จ",
+                "message" => "ไม่พบรหัสรายการ",
+                "icon" => "error"
+            ));
+        }
+
+        // 1. ตรวจสอบการเลือกชุมชน (รองรับหลายชุมชน)
+        $community_ids = isset($_POST["community_id"]) ? $_POST["community_id"] : array();
+        if (!is_array($community_ids)) {
+            $community_ids = (!empty($community_ids) && $community_ids !== '0') ? array($community_ids) : array();
+        }
+        $community_ids = array_values(array_filter($community_ids, function($v) {
+            return !empty($v) && $v !== '0';
+        }));
+
+        if (empty($community_ids)) {
+            return json_encode(array(
+                "data" => "n",
+                "title" => "ไม่สำเร็จ",
+                "message" => "กรุณาเลือกชุมชนอย่างน้อย 1 ชุมชน",
+                "icon" => "error"
+            ));
+        }
+        $primary_community_id = $community_ids[0];
+
+        // 2. ตรวจสอบคอลเลกชัน
+        $collection_id = isset($_POST["collection_id"]) ? trim($_POST["collection_id"]) : '0';
+        if ($collection_id == '0' || empty($collection_id)) {
+            return json_encode(array(
+                "data" => "n",
+                "title" => "ไม่สำเร็จ",
+                "message" => "กรุณาเลือกคอลเลกชัน",
+                "icon" => "error"
+            ));
+        }
+
+        // 3. ตรวจสอบ Title
+        $item_title = isset($_POST["item_title"]) ? trim($_POST["item_title"]) : "";
+        if (empty($item_title)) {
+            return json_encode(array(
+                "data" => "n",
+                "title" => "ไม่สำเร็จ",
+                "message" => "กรุณากรอก Title",
+                "icon" => "error"
+            ));
+        }
+
+        // จัดการไฟล์ที่อัปโหลด (ถ้ามี)
         $has_upload_file = isset($_FILES["file_name"]) && !empty($_FILES["file_name"]["name"]);
         $file_name = "";
 
@@ -134,7 +247,7 @@
                 switch ($upload_error) {
                     case UPLOAD_ERR_INI_SIZE:
                     case UPLOAD_ERR_FORM_SIZE:
-                        $error_msg = "ขนาดไฟล์เกินขีดจำกัดที่เซิร์ฟเวอร์กำหนด (กรุณาตรวจสอบ upload_max_filesize และ post_max_size ใน php.ini)";
+                        $error_msg = "ขนาดไฟล์เกินขีดจำกัดที่เซิร์ฟเวอร์กำหนด (upload_max_filesize: " . ini_get('upload_max_filesize') . ", post_max_size: " . ini_get('post_max_size') . ") กรุณาลดขนาดไฟล์ก่อนอัปโหลด";
                         break;
                     case UPLOAD_ERR_PARTIAL:
                         $error_msg = "การอัปโหลดไฟล์ไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง";
@@ -168,7 +281,7 @@
                     return json_encode([
                         "data" => "n",
                         "title" => "ไม่สามารถสร้างโฟลเดอร์ได้",
-                        "message" => "พาธ: $newdir\nระบบแจ้ง: $sysErr\n(PHP User: $phpUser, สิทธิ์ $filesDir: $permInfo)\n\nกรุณารันคำสั่ง: sudo chown -R $phpUser:$phpUser \"$filesDir\" && sudo chmod -R 777 \"$filesDir\"",
+                        "message" => "พาธ: $newdir\nระบบแจ้ง: $sysErr\n(PHP User: $phpUser, สิทธิ์ $filesDir: $permInfo)",
                         "icon" => "error"
                     ]);
                 }
@@ -190,6 +303,15 @@
                 ]);
             }
 
+            // ลบไฟล์เดิมถ้ามี เพื่อไม่ให้ไฟล์ตกค้าง
+            $old_files = $DATABASE->QueryObj("SELECT * FROM tb_file WHERE item_id = '$item_id' AND file_type = 'file'");
+            if (!empty($old_files)) {
+                foreach ($old_files as $old_f) {
+                    deleteFile($dir, $old_f["file_name"]);
+                }
+                $DATABASE->QueryDelete("tb_file", "item_id = '$item_id' AND file_type = 'file'");
+            }
+
             $DATABASE->QueryInsert('tb_file',[
                 'file_id' => $file_id,
                 'file_name' => $file_name,
@@ -198,81 +320,105 @@
                 'item_id' => $item_id
             ]);
         }
-        $update = $DATABASE->QueryUpdate('tb_item',[
-            'item_title' => $_POST["item_title"],
-            'community_id' => $_POST["community_id"],
-            'collection_id' => $_POST["collection_id"],
-            'item_alternative' => $_POST["item_alternative"],
-            'item_issued_month' => $_POST["item_issued_month"],
-            'item_issued_year' => $_POST["item_issued_year"],
-            'item_description' => $_POST["item_description"],
-            'item_abstract' => $_POST["item_abstract"],
-            'item_sponsorship' => $_POST["item_sponsorship"],
-            'item_citation' => $_POST["item_citation"],
-            'item_uri' => $_POST["item_uri"],
-            'item_publisher' => $_POST["item_publisher"]
-        ], "item_id = '".$item_id."'");
+
+        // อัปเดต tb_item
+        $item_data = array(
+            'item_title' => $item_title,
+            'community_id' => $primary_community_id,
+            'collection_id' => $collection_id,
+            'item_alternative' => isset($_POST["item_alternative"]) ? trim($_POST["item_alternative"]) : "",
+            'item_issued_month' => isset($_POST["item_issued_month"]) ? trim($_POST["item_issued_month"]) : "",
+            'item_issued_year' => isset($_POST["item_issued_year"]) ? trim($_POST["item_issued_year"]) : "",
+            'item_abstract' => isset($_POST["item_abstract"]) ? trim($_POST["item_abstract"]) : "",
+            'item_sponsorship' => isset($_POST["item_sponsorship"]) ? trim($_POST["item_sponsorship"]) : "",
+            'item_citation' => isset($_POST["item_citation"]) ? trim($_POST["item_citation"]) : "",
+            'item_uri' => isset($_POST["item_uri"]) ? trim($_POST["item_uri"]) : "",
+            'item_publisher' => isset($_POST["item_publisher"]) ? trim($_POST["item_publisher"]) : "",
+            'item_journal' => isset($_POST["item_journal"]) ? trim($_POST["item_journal"]) : "",
+            'item_volume' => isset($_POST["item_volume"]) ? trim($_POST["item_volume"]) : "",
+            'item_isbn' => isset($_POST["item_isbn"]) ? trim($_POST["item_isbn"]) : ""
+        );
+
+        $update = $DATABASE->QueryUpdate('tb_item', $item_data, "item_id = '$item_id'");
+
         if ($update) {
-            if (!empty($_POST['writer_id'])) {
-                $writer_ids = $_POST['writer_id'];
-                $writer_fnames = $_POST['writer_fname'];
-                $writer_lnames = $_POST['writer_lname'];
-                $writer_mains = $_POST['writer_main'];
-                foreach ($writer_fnames as $index => $writer_fname) {
-                    if (!isset( $writer_lnames[$index])) {
-                        continue;
-                    }
-                    $writer_main = isset($writer_mains[$index]) ? $writer_mains[$index] : 2;
-                    $DATABASE->QueryUpdate("tb_writer", [
-                        'writer_fname' => $writer_fname,
-                        'writer_lname' => $writer_lnames[$index],
-                        'writer_main' => $writer_main
-                    ], "writer_id = '".$writer_ids[$index]."'");
-                }
+            // 1. อัปเดต tb_item_community (ลบเดิมแล้วบันทึกใหม่ทั้งหมด)
+            $DATABASE->QueryDelete('tb_item_community', "item_id = '$item_id'");
+            foreach ($community_ids as $com_id) {
+                $DATABASE->QueryInsert('tb_item_community', array(
+                    'item_id' => $item_id,
+                    'community_id' => $com_id
+                ));
             }
-            if (!empty($_POST['edit_fname'])) {
-                $edit_prefixs = $_POST['edit_prefix'];
-                $edit_fnames = $_POST['edit_fname'];
-                $edit_lnames = $_POST['edit_lname'];
-                $edit_mains = isset($_POST['edit_main']) ? $_POST['edit_main'] : [];
-                foreach ($edit_fnames as $i => $edit_fname) {
-                    $writer_ids = $DATABASE->QueryMaxId("tb_writer","writer_id",'WRT',11);
-                    if (!isset($edit_prefixs[$i], $edit_lnames[$i])) {
+
+            // 2. อัปเดต Creater (tb_writer)
+            if (isset($_POST['creator_name']) && is_array($_POST['creator_name'])) {
+                $DATABASE->QueryDelete('tb_writer', "item_id = '$item_id'");
+                $creator_names = $_POST['creator_name'];
+                $creator_orgs = isset($_POST['creator_org']) && is_array($_POST['creator_org']) ? $_POST['creator_org'] : array();
+
+                foreach ($creator_names as $idx => $raw_name) {
+                    $raw_name = trim($raw_name);
+                    $org = isset($creator_orgs[$idx]) ? trim($creator_orgs[$idx]) : '';
+                    if ($raw_name === '' && $org === '') {
                         continue;
                     }
-                    $edit_main = isset($edit_mains[$i]) ? $edit_mains[$i] : 2;
-                    $DATABASE->QueryInsert('tb_writer',[
-                        'writer_id' => $writer_ids,
-                        'writer_prefix' => $edit_prefixs[$i],
-                        'writer_fname' => $edit_fname,
-                        'writer_lname' => $edit_lnames[$i],
+                    $parts = preg_split('/\s+/', $raw_name, 2);
+                    $fname = isset($parts[0]) ? $parts[0] : '';
+                    $lname = isset($parts[1]) ? $parts[1] : '';
+
+                    $writer_id = $DATABASE->QueryMaxId("tb_writer", "writer_id", 'WRT', 11);
+                    $writer_main = ($idx === 0) ? 1 : 2;
+
+                    $DATABASE->QueryInsert('tb_writer', array(
+                        'writer_id' => $writer_id,
+                        'writer_fname' => $fname,
+                        'writer_lname' => $lname,
+                        'writer_organization' => $org,
                         'item_id' => $item_id,
-                        'writer_main' => $edit_main
-                    ]);
+                        'writer_main' => $writer_main
+                    ));
                 }
             }
 
+            // 3. อัปเดต contributor (tb_contributor)
+            $DATABASE->QueryDelete('tb_contributor', "item_id = '$item_id'");
+            if (isset($_POST['contributor_name']) && is_array($_POST['contributor_name'])) {
+                $contributor_names = $_POST['contributor_name'];
+                $contributor_roles = isset($_POST['contributor_role']) && is_array($_POST['contributor_role']) ? $_POST['contributor_role'] : array();
 
-            if (!empty($_POST['subject_id']) && !empty($_POST['subject_name'])) {
-                $subject_ids = $_POST['subject_id'];
-                $subject_names = $_POST['subject_name'];
-                foreach ($subject_names as $i2 => $subject_name) {
-                    $DATABASE->QueryUpdate("tb_subject", [
-                        'subject_name' => $subject_name
-                    ], "subject_id = '".$subject_ids[$i2]."'");
-                }
-            }
-            if (!empty($_POST['edit_name'])) {
-                $edit_names = $_POST['edit_name'];
-                foreach ($edit_names as $i3 => $edit_name) {
-                    $subject_ids = $DATABASE->QueryMaxId("tb_subject","subject_id");
-                    $DATABASE->QueryInsert('tb_subject',[
-                        'subject_id' => $subject_ids,
-                        'subject_name' => $edit_name,
+                foreach ($contributor_names as $idx => $cnt_name) {
+                    $cnt_name = trim($cnt_name);
+                    $cnt_role = isset($contributor_roles[$idx]) ? trim($contributor_roles[$idx]) : '';
+                    if ($cnt_name === '' && $cnt_role === '') {
+                        continue;
+                    }
+                    $DATABASE->QueryInsert('tb_contributor', array(
+                        'contributor_name' => $cnt_name,
+                        'contributor_role' => $cnt_role,
                         'item_id' => $item_id
-                    ]);
+                    ));
                 }
             }
+
+            // 4. อัปเดต Subject (tb_subject)
+            if (isset($_POST['subject_name']) && is_array($_POST['subject_name'])) {
+                $DATABASE->QueryDelete('tb_subject', "item_id = '$item_id'");
+                $subject_names = $_POST['subject_name'];
+                foreach ($subject_names as $i => $subject_name) {
+                    $s_name = trim($subject_name);
+                    if ($s_name === '') {
+                        continue;
+                    }
+                    $subject_id = $DATABASE->QueryMaxId("tb_subject", "subject_id");
+                    $DATABASE->QueryInsert('tb_subject', array(
+                        'subject_id' => $subject_id,
+                        'subject_name' => $s_name,
+                        'item_id' => $item_id
+                    ));
+                }
+            }
+
             return json_encode([
                 "data"=>"y",
                 "title"=>"สำเร็จ",
@@ -280,12 +426,16 @@
                 "icon"=>"success"
             ]);
         } else {
+            $db_err = $DATABASE->Error();
+            $err_msg = "ไม่สามารถแก้ไขรายการนี้ได้";
+            if (!empty($db_err)) {
+                $err_msg .= " (Database: " . $db_err . ")";
+            }
             return json_encode([
                 "data"=>"n",
                 "title"=>"ไม่สำเร็จ",
-                "message"=>"ไม่สามารถแก้ไขรายการนี้ได้",
+                "message"=> $err_msg,
                 "icon"=>"error"
             ]);
         }
-        
     }
